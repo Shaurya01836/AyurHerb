@@ -1,39 +1,51 @@
 // src/components/Register.jsx
-import React, { useState } from 'react';
-import { auth } from '../services/firebase'; // Ensure this is correct
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { getDatabase, ref, set } from 'firebase/database';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link from react-router-dom
+import React, { useState } from "react";
+import { auth } from "../services/firebase"; // Ensure this is correct
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
+import { useNavigate, Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const Register = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       const user = userCredential.user;
 
       // Save user data to Realtime Database
       const db = getDatabase();
-      await set(ref(db, 'users/' + user.uid), {
+      await set(ref(db, "users/" + user.uid), {
         name: name,
         email: email,
       });
 
-      navigate('/dashboard'); // Redirect to dashboard after successful registration
+      // Show success alert
+      window.alert(
+        "Registration successful! You will be redirected to the dashboard."
+      );
+      navigate("/dashboard"); // Redirect to dashboard after successful registration
     } catch (error) {
-      console.error('Error registering user:', error.message);
+      // Show error alert
+      window.alert(`Error registering user: ${error.message}`);
+      console.error("Error registering user:", error.message);
     }
   };
 
   return (
     <div className="flex items-center justify-center h-screen bg-green-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold text-center text-green-600">Register</h2>
+        <h2 className="text-2xl font-bold text-center text-green-600">
+          Register
+        </h2>
         <form onSubmit={handleRegister} className="mt-4">
           <input
             type="text"
@@ -68,8 +80,11 @@ const Register = () => {
         </form>
         <div className="mt-4 text-center">
           <p className="text-gray-600">
-            Already a user?{' '}
-            <Link to="/login" className="text-green-600 font-bold hover:underline">
+            Already a user?{" "}
+            <Link
+              to="/login"
+              className="text-green-600 font-bold hover:underline"
+            >
               Login
             </Link>
           </p>

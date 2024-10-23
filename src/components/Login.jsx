@@ -14,8 +14,13 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
+
+      // Show success alert
+      window.alert("Login successful! Redirecting to your dashboard.");
       navigate("/dashboard"); // Redirect to dashboard after successful login
     } catch (error) {
+      // Show error alert
+      window.alert(`Error logging in: ${error.message}`);
       console.error("Error logging in:", error.message);
     }
   };

@@ -7,10 +7,10 @@ import AyushCards from "../components/AyushCards";
 import Footer from "../components/Footer";
 import QuizPopup from "../components/QuizPopup";
 
-
 // import Slider from "react-slick";
 
 const Home = () => {
+  const [notes, setNotes] = useState(""); // State for notes
   const [searchTerm, setSearchTerm] = useState("");
   const [filterRegion, setFilterRegion] = useState("All Regions");
   const [filterType, setFilterType] = useState("All Types");
@@ -37,6 +37,16 @@ const Home = () => {
       } finally {
         setLoading(false); // Set loading to false
       }
+    };
+
+    // Function to download notes as a text file
+    const handleDownloadNotes = () => {
+      const element = document.createElement("a");
+      const file = new Blob([notes], { type: "text/plain" });
+      element.href = URL.createObjectURL(file);
+      element.download = "notes.txt";
+      document.body.appendChild(element); // Required for this to work in FireFox
+      element.click();
     };
 
     getPlants(); // Call the async function
@@ -115,11 +125,13 @@ const Home = () => {
         updatedBookmarks = [...prev, plant]; // Add bookmark
       }
       // Save updated bookmarks to localStorage
-      localStorage.setItem("bookmarkedPlants", JSON.stringify(updatedBookmarks));
+      localStorage.setItem(
+        "bookmarkedPlants",
+        JSON.stringify(updatedBookmarks)
+      );
       return updatedBookmarks;
     });
   };
-  
 
   // Function to remove a bookmark
   const handleRemoveBookmark = (id) => {
@@ -409,6 +421,10 @@ const Home = () => {
                         <strong>Region:</strong> {selectedPlant.region}
                       </p>
                       <p>
+                        <strong>Common Names:</strong>{" "}
+                        {selectedPlant.commonNames}
+                      </p>
+                      <p>
                         <strong>Type:</strong> {selectedPlant.type}
                       </p>
                       <p>
@@ -419,16 +435,55 @@ const Home = () => {
                         {selectedPlant.botanicalName}
                       </p>
                       <p>
-                        <strong>Common Names:</strong>{" "}
-                        {selectedPlant.commonNames}
-                      </p>
-                      <p>
                         <strong>Medicinal Uses:</strong>{" "}
                         {selectedPlant.medicinalUses}
                       </p>
                       <p>
                         <strong>Methods of Cultivation:</strong>{" "}
                         {selectedPlant.methodsOfCultivation}
+                      </p>
+                      <p>
+                        <strong>ExtractionProcess:</strong>{" "}
+                        {selectedPlant.ExtractionProcess}
+                      </p>
+                      <p>
+                        <strong>Environmental Impact:</strong>{" "}
+                        {selectedPlant.environmentalImpact}
+                      </p>
+                      <p>
+                        <strong>Reasons To Grow Outdoors:</strong>{" "}
+                        {selectedPlant.reasonsToGrowOutdoors}
+                      </p>
+                      <p>
+                        <strong>scientific Research & Studies:</strong>{" "}
+                        {selectedPlant.scientificResearchAndStudies}
+                      </p>
+                      <p>
+                        <strong>side Effects & Risks:</strong>{" "}
+                        {selectedPlant.sideEffectsAndRisks}
+                      </p>
+                      <p>
+                        <strong>Reasons To Grow Indoors:</strong>{" "}
+                        {selectedPlant.reasonstoGrowIndoors}
+                      </p>
+                      <p>
+                        <strong>Nutritional Benefits:</strong>{" "}
+                        {selectedPlant.nutritionalBenefits}
+                      </p>
+                      <p>
+                        <strong>Products:</strong> {selectedPlant.Products}
+                      </p>
+                      <p>
+                        <strong>Traditional Medicine :</strong>{" "}
+                        {selectedPlant.TraditionalMedicine}
+                      </p>
+                      <p>
+                        <strong>commercial & Industrial Uses :</strong>{" "}
+                        {selectedPlant.commercialAndIndustrialUses}
+                      </p>
+                      <p>
+                        <strong>consideration For Both Settings :</strong>{" "}
+                        {selectedPlant.considerationForBothSettings}
                       </p>
                     </div>
                   </div>
@@ -446,16 +501,19 @@ const Home = () => {
                   <div className="mt-6">
                     <h3 className="text-xl font-semibold mb-3">Notes:</h3>
                     <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
                       id="notes-textarea"
-                      rows="5"
-                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-400"
+                      className="w-full p-4 border border-gray-300 rounded-md"
                       placeholder="Write your notes here..."
+                      rows={6}
                     ></textarea>
                   </div>
 
                   {/* Buttons for actions */}
                   <div className="flex items-center mt-4">
-                    <button className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
+                    <button 
+                    className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
                       <i className="fa-solid fa-download mr-2"></i>
                       Download
                     </button>
