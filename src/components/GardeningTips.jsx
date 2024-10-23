@@ -29,16 +29,16 @@ const gardeningTips = [
     details:
       "Use a balanced fertilizer or organic alternatives like compost tea. Make sure to follow instructions to avoid over-fertilization.",
     image:
-      " https://ideogram.ai/assets/progressive-image/balanced/response/74s8lfR3TpW1z1pVkCF6gQ",
+    "https://cdn.shopify.com/s/files/1/0569/9675/7697/files/use-homemade-plant-fertilizer-garden_1024x1024.jpg?v=1655088627",
   },
   {
     id: 4,
     title: "Pest Control",
     description: "Protect your plants from pests with natural remedies.",
     details:
-      "Use neem oil, garlic spray, or companion planting to deter pests without harming beneficial insects.",
+    "Use neem oil, garlic spray, or companion planting to deter pests without harming beneficial insects.",
     image:
-      "https://ideogram.ai/assets/image/lossless/response/YvtKd_jpSG24V4a99hJdcQ",
+    "https://media.istockphoto.com/id/1092812454/photo/woman-spraying-flowers-in-the-garden.jpg?s=612x612&w=0&k=20&c=eelbPD_-Tmr-Al0-z9hTLzASK3chsdeiOCopB_ATDFU=",
   },
   {
     id: 5,
@@ -48,7 +48,7 @@ const gardeningTips = [
     details:
       "Most vegetables need at least 6 hours of direct sunlight per day. Consider growing shade-tolerant plants in low-light areas.",
     image:
-      "https://ideogram.ai/assets/image/lossless/response/YvtKd_jpSG24V4a99hJdcQ",
+      "https://cdn.shopify.com/s/files/1/0069/5854/6980/files/4._Shade_Cloths_fb65f336-36ad-4efd-8e7d-a96985d472f7_600x600.jpg?v=1717095057Q",
   },
   // ...additional tips
 ];
@@ -71,14 +71,14 @@ const recommendedTools = [
     description:
       "A versatile hand tool for digging small holes, transplanting, and planting seeds.",
     image:
-      "https://ideogram.ai/assets/image/lossless/response/RAjtwyNZSHOdlUOuiSS90A",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlisQsYXbXv7cmHR8LOxQ4ACkS0JKVlmk9qw&s",
   },
   {
     name: "Soil pH Meter",
     description:
       "A tool to measure the acidity or alkalinity of your soil, helping maintain plant health.",
     image:
-      "https://ideogram.ai/assets/image/lossless/response/RAjtwyNZSHOdlUOuiSS90A",
+      "https://img.crocdn.co.uk/images/products2/pr/20/00/04/50/pr2000045066.jpg?width=940&height=940",
   },
   // ...additional tools
 ];
@@ -94,22 +94,32 @@ const GardeningTips = () => {
     <div className="min-h-screen bg-white p-8">
       <Navbar />
       {/* Header Section */}
-      <header className="flex flex-col md:flex-row items-center mb-12 p-8 bg-green-100 rounded-lg">
-        <div className="md:w-1/2 p-4">
-          <h1 className="text-4xl font-bold text-green-700">Gardening Tips</h1>
-          <p className="mt-3 text-lg text-gray-700">
-            Master your gardening skills with essential tips and tricks to make
-            your garden thrive.
-          </p>
-        </div>
-        <div className="md:w-1/2 p-4">
-          <img
-            src="https://ideogram.ai/assets/progressive-image/balanced/response/NJw1wxWVT3WlWdd8iyDJtw"
-            alt="Gardening"
-            className="w-full h-auto object-cover rounded-lg shadow-md"
-          />
-        </div>
-      </header>
+      <header className="flex flex-col md:flex-row items-center justify-between mb-12 p-8 bg-green-100 rounded-lg shadow-lg">
+  <div className="md:w-1/2 p-4 space-y-4">
+    <h1 className="text-5xl font-extrabold text-green-800 md:text-6xl">Gardening Tips</h1>
+    <p className="text-lg text-gray-700">
+      Master the art of gardening with our essential tips and tricks. From soil preparation to plant care, 
+      learn how to make your garden flourish and grow beautiful blooms.
+    </p>
+    <ul className="list-disc list-inside text-gray-600">
+      <li>Choosing the right plants for your climate</li>
+      <li>Soil enrichment techniques</li>
+      <li>Watering schedules for different plant types</li>
+      <li>Pest control without chemicals</li>
+    </ul>
+    <a href="#learn-more" className="inline-block mt-4 px-6 py-3 bg-green-700 text-white rounded-lg shadow hover:bg-green-800 transition-all">
+      Learn More
+    </a>
+  </div>
+  <div className="md:w-1/2 p-4">
+    <img
+      src="https://ideogram.ai/assets/progressive-image/balanced/response/NJw1wxWVT3WlWdd8iyDJtw"
+      alt="Gardening"
+      className="w-full h-auto object-cover rounded-lg shadow-md"
+    />
+  </div>
+</header>
+
 
       <div className="flex flex-col md:flex-row">
         {/* Main Gardening Tips Content */}
