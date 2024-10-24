@@ -3,10 +3,10 @@ import React from 'react';
 const FirstPage = ({ onGetStartedClick }) => {
     return (
         <div className="flex justify-center items-center h-screen">
-            <div className="bg-sec-color m-4 md:m-16 p-6 md:p-10 shadow-lg rounded-lg flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8">
+            <div className="bg-sec-color m-4 md:m-16 p-6 md:p-10 shadow-lg rounded-lg flex flex-col md:flex-row space-y-8 md:space-y-0 md:space-x-8 h-[70vh] md:h-[80vh] items-center justify-center">
                 {/* Text Section */}
-                <div className="flex flex-col w-full md:w-6/12">
-                    <h1 className="leading-tight mb-6 md:mb-12 text-3xl md:text-5xl text-main-color font-bold text-center md:text-left">
+                <div className="flex flex-col w-full md:w-6/12 text-center md:text-left">
+                    <h1 className="leading-tight mb-6 md:mb-12 text-3xl md:text-5xl text-main-color font-bold">
                         Step Into Nature's Pharmacy: Your Virtual Herbal Haven
                     </h1>
                     <p className="text-gray-600 text-lg md:text-xl">
