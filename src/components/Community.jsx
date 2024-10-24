@@ -128,27 +128,27 @@ const CommunityForum = () => {
   return (
     <>
       <Navbar />
-      <div className="p-8 bg-gray-50 min-h-screen">
-        <h1 className="text-4xl font-extrabold mb-10 mt-20 text-center text-green-700">
+      <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+        <h1 className="text-3xl md:text-4xl font-extrabold mb-6 mt-20 text-center text-green-700">
           Community Forum
         </h1>
 
         {user ? (
           <form
             onSubmit={handlePostSubmit}
-            className="mb-10 bg-white p-6 rounded-lg"
+            className="mb-10 bg-white p-4 md:p-6 rounded-lg shadow-md"
           >
             <textarea
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
               placeholder="Ask a question or share your thoughts..."
-              className="w-full h-32 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition duration-200"
+              className="w-full h-32 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition duration-200"
               required
             />
             <div className="flex justify-end mt-4">
               <button
                 type="submit"
-                className="bg-green-600 text-white py-2 px-8 rounded-full  hover:bg-green-700 transition duration-200"
+                className="bg-green-600 text-white py-2 px-6 rounded-full hover:bg-green-700 transition duration-200"
               >
                 Post
               </button>
@@ -164,7 +164,7 @@ const CommunityForum = () => {
           {posts.map((post) => (
             <div
               key={post.id}
-              className="p-8 bg-white rounded-lg  transition transform hover:-translate-y-1 hover:shadow-xl"
+              className="p-6 md:p-8 bg-white rounded-lg shadow-md transition transform hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="flex items-center mb-4">
                 <div className="bg-green-200 w-10 h-10 rounded-full flex items-center justify-center text-green-700 font-bold">
@@ -194,7 +194,7 @@ const CommunityForum = () => {
                 </div>
 
                 <button
-                  className="text-blue-600 hover:underline mb-4 font-medium"
+                  className="text-blue-600 hover:underline font-medium"
                   onClick={() =>
                     setActivePostId(post.id === activePostId ? null : post.id)
                   }
@@ -244,7 +244,7 @@ const CommunityForum = () => {
                       <div className="flex justify-end mt-3">
                         <button
                           type="submit"
-                          className="bg-blue-600 text-white py-2 px-6 rounded-full  hover:bg-blue-700 transition duration-200"
+                          className="bg-blue-600 text-white py-2 px-6 rounded-full hover:bg-blue-700 transition duration-200"
                         >
                           Reply
                         </button>

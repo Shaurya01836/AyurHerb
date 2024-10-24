@@ -19,10 +19,10 @@ const MyHerbs = () => {
 
   return (
     <>
-    <Navbar />
-      <div className="min-h-screen px-8 py-10">
-        <h2 className="text-2xl font-bold mb-6">My Bookmarked Herbs</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+      <Navbar />
+      <div className="min-h-screen px-4 sm:px-8 py-10">
+        <h2 className="text-2xl font-bold mb-6 text-center">My Bookmarked Herbs</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {bookmarkedPlants.map((plant) => (
             <PlantCard
               key={plant._id}

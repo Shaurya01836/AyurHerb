@@ -46,19 +46,19 @@ const WellnessOptions = () => {
 
   return (
     <div className="max-w-8xl mx-auto py-16 px-4 sm:px-6 lg:px-8 shadow-2xl">
-      <h2 className="text-center text-4xl font-extrabold text-main-color mb-8">
+      <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-main-color mb-6">
         Discover the Power of Natural Healing
       </h2>
-      <p className="text-center text-lg text-gray-500 mb-12">
+      <p className="text-center text-md sm:text-lg text-gray-500 mb-8">
         Explore a wide variety of time-honored practices designed to promote holistic wellness and rejuvenate your body and mind.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
         {offerings.map((offering, index) => (
-          <div key={index} className={`p-6 ${offering.bgColor} rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300`}>
-            <div className="text-5xl mb-4 text-center">{offering.icon}</div>
-            <h3 className="text-2xl font-semibold text-gray-800 mb-3 text-center">{offering.title}</h3>
-            <p className="text-gray-600 text-center mb-6">{offering.description}</p>
-            <p className={`text-center font-bold ${offering.textColor} mt-6`}>
+          <div key={index} className={`p-4 sm:p-6 ${offering.bgColor} rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300`}>
+            <div className="text-4xl sm:text-5xl mb-4 text-center">{offering.icon}</div>
+            <h3 className="text-lg sm:text-2xl font-semibold text-gray-800 mb-2 text-center">{offering.title}</h3>
+            <p className="text-gray-600 text-sm sm:text-base text-center mb-4">{offering.description}</p>
+            <p className={`text-center font-bold ${offering.textColor} mt-4`}>
               {offering.tagline}
             </p>
           </div>

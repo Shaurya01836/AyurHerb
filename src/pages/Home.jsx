@@ -23,6 +23,7 @@ const Home = () => {
   const [isQuizOpen, setIsQuizOpen] = useState(false); // State for quiz popup
   const [showChatbot, setShowChatbot] = useState(false); // State for chatbot visibility
   const [bookmarkedPlants, setBookmarkedPlants] = useState([]); // State to hold bookmarked plants
+  const [isOpen, setIsOpen] = useState(false); // State to manage the hamburger menu
 
   // Fetch plants data on component mount
   useEffect(() => {
@@ -144,58 +145,59 @@ const Home = () => {
       plantCardsRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+  // Navbar function to toggle hamburger menu
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
+  };
 
   // Render the list of PlantCards and the popup if open
   return (
     <div className="font-poppins scrollbar-thin">
       {/* Navbar */}
       <nav className="bg-white shadow-md fixed top-0 left-0 w-full z-30">
-        <div className="container mx-auto flex items-center py-4 px-8">
+        <div className="container mx-auto flex items-center justify-between py-4 px-5 sm:px-8">
           {/* Logo */}
           <div className="flex-shrink-0 text-black text-2xl font-semibold">
-            <img
-              src="/images/AYURB.png"
-              alt="AYURB Logo"
-              className="h-10 ml-5"
-            />
+            <img src="/images/AYURB.png" alt="AYURB Logo" className="h-10" />
+          </div>
+
+          {/* Hamburger Icon */}
+          <div className="md:hidden flex items-center">
+            <button onClick={toggleMenu} className="focus:outline-none">
+              {isOpen ? (
+                <span className="material-icons">close</span> // Close icon
+              ) : (
+                <span className="material-icons">menu</span> // Hamburger icon
+              )}
+            </button>
           </div>
 
           {/* Middle: Links */}
-          <div className="flex-grow flex justify-center space-x-8">
-            <Link
-              to="/"
-              className="pb-1 text-navbar-text border-b-2 border-transparent hover:border-sub-color hover:text-sub-color transition-colors duration-200"
-            >
-              Home
-            </Link>
-            <Link
-              to="/login"
-              className="pb-1 text-navbar-text border-b-2 border-transparent hover:border-sub-color hover:text-sub-color transition-colors duration-200"
-            >
-              Login
-            </Link>
-            <Link
-              to="/health-wellness"
-              className="pb-1 text-navbar-text border-b-2 border-transparent hover:border-sub-color hover:text-sub-color transition-colors duration-200"
-            >
-              Health
-            </Link>
-            <Link
-              to="/community"
-              className="pb-1 text-navbar-text border-b-2 border-transparent hover:border-sub-color hover:text-sub-color transition-colors duration-200"
-            >
-              Community
-            </Link>
-            <Link
-              to="/dashboard"
-              className="pb-1 text-navbar-text border-b-2 border-transparent hover:border-sub-color hover:text-sub-color transition-colors duration-200"
-            >
-              Dashboard
-            </Link>
+          <div
+            className={`flex-grow flex-col md:flex md:flex-row md:justify-center md:space-x-8 md:items-center ${
+              isOpen ? "flex" : "hidden"
+            } md:flex md:space-x-8 transition-all duration-300 ease-in-out`}
+          >
+            {[
+              { to: "/", label: "Home" },
+              { to: "/login", label: "Login" },
+              { to: "/health-wellness", label: "Health" },
+              { to: "/community", label: "Community" },
+              { to: "/dashboard", label: "Dashboard" },
+            ].map((link, idx) => (
+              <Link
+                key={idx}
+                to={link.to}
+                className="pb-1 text-navbar-text border-b-2 border-transparent hover:border-sub-color hover:text-sub-color transition-colors duration-200"
+                onClick={() => setIsOpen(false)} // Close the menu on link click
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
 
           {/* Right Side: Search Bar, Filter, Quiz, AR */}
-          <div className="flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4">
             {/* Search Box */}
             <div className="flex items-center w-80">
               <span className="material-icons text-main-color ml-2 mr-3">
@@ -274,7 +276,7 @@ const Home = () => {
 
       {/* Filter Slider (Fixed with Transparency and Blur Effect) */}
       <div
-        className={`fixed top-16 z-20 left-0 w-full bg-white bg-opacity-80 backdrop-blur-md shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-16 z-20 w-full bg-white bg-opacity-80 backdrop-blur-md shadow-lg transform transition-transform duration-300 ease-in-out ${
           isFilterOpen ? "translate-y-0" : "-translate-y-full"
         }`}
       >
@@ -512,8 +514,7 @@ const Home = () => {
 
                   {/* Buttons for actions */}
                   <div className="flex items-center mt-4">
-                    <button 
-                    className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
+                    <button className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
                       <i className="fa-solid fa-download mr-2"></i>
                       Download
                     </button>

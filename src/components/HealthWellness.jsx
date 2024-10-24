@@ -8,7 +8,7 @@ const categories = [
     { name: 'Diseases', imageUrl: '/images/diseases.png', plants: ['Ashwagandha', 'Tulsi', 'Ginger'] },
     { name: 'Nutrition', imageUrl: '/images/nutrition.png', plants: ['Moringa', 'Spinach', 'Broccoli'] },
     { name: 'Fitness', imageUrl: '/images/fitness.png', plants: ['Wheatgrass', 'Spirulina', 'Ginseng'] },
-    { name: 'Mental Health', imageUrl: '/images/mentalhealth.png', plants: ['Lavender', 'Chamomile', 'Ashwagandha'] },
+    { name: 'Mental Health', imageUrl: '/images/mentalhealth.png', plants: ['Lavender', 'Chamomile', 'Ashwagandha'] },
 ];
 
 const wellnessTips = [
@@ -41,7 +41,7 @@ const HealthWellness = () => {
                 </p>
 
                 {/* Add Padding to Category Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 px-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 px-2 sm:px-10">
                     {categories.map((category, index) => (
                         <div
                             key={index}
