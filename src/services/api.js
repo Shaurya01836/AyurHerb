@@ -2,10 +2,10 @@ import axios from 'axios';
 
 export const fetchPlants = async () => {
   try {
-    const response = await axios.get('https://free-ap-south-1.cosmocloud.io/development/api/herbinfo', {
+    const response = await axios.get(import.meta.env.VITE_API_BASE_URL, {
       headers: {
-        'EnvironmentID': '670b8f9459c9b368f802b507',
-        'ProjectID': '670b8f9459c9b368f802b506',
+        'EnvironmentID': import.meta.env.VITE_ENVIRONMENT_ID,
+        'ProjectID': import.meta.env.VITE_PROJECT_ID,
       },
       params: {
         limit: 12,
