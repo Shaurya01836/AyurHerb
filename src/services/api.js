@@ -8,7 +8,7 @@ export const fetchPlants = async () => {
         'ProjectID': import.meta.env.VITE_PROJECT_ID,
       },
       params: {
-        limit: 12,
+        limit: 13,
         offset: 0,
       },
     });

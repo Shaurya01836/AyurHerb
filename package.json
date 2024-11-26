@@ -13,7 +13,7 @@
     "@fortawesome/fontawesome-free": "^6.6.0",
     "aframe": "^1.6.0",
     "axios": "^1.7.7",
-    "chart.js": "^4.4.5",
+    "chart.js": "^4.4.6",
     "firebase": "^10.14.1",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",

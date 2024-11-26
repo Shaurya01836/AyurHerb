@@ -11,6 +11,7 @@ import GardeningTips from './components/GardeningTips'; // Import the Gardening 
 import Home from './pages/Home';
 import CommunityForum from './components/Community';
 import MyHerbs from './components/MyHerbs';
+import Admin from './components/AdminPanel';
 
 
 
@@ -26,6 +27,7 @@ const App = () => {
           <Route path="/health-wellness" element={<HealthWellness />} />
           <Route path="/gardening-tips" element={<GardeningTips />} /> 
           <Route path="/myherbs" element={<MyHerbs />} /> 
+          <Route path="/admin" element={<Admin />} /> 
         
           {/* Authentication routes */}
           <Route path="/login" element={<Login />} />   {/* Login Page */}
