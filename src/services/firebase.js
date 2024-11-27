@@ -13,12 +13,17 @@ const firebaseConfig = {
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL
+  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app;
+try {
+  // Initialize Firebase
+  app = initializeApp(firebaseConfig);
+  console.log("Firebase initialized successfully");
+} catch (error) {
+  console.error("Firebase initialization failed:", error);
+}
 
 // Initialize Firebase services
 const auth = getAuth(app); // Initialize Firebase Authentication
@@ -27,3 +32,6 @@ const firestore = getFirestore(app); // Initialize Firestore
 
 // Export Firebase services
 export { app, auth, database, firestore }; // Export firestore as well
+
+// Optional: Default export for cleaner imports
+export default { app, auth, database, firestore };

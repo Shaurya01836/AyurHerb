@@ -17,18 +17,36 @@ const AdminPanel = () => {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [fetchingPosts, setFetchingPosts] = useState(true);
+  const [fetchingUsers, setFetchingUsers] = useState(true);
 
   // Fetch data from Firestore
   useEffect(() => {
-    const unsubscribePosts = onSnapshot(collection(firestore, "posts"), (snapshot) => {
-      setCommunityPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });
+    const unsubscribePosts = onSnapshot(
+      collection(firestore, "posts"),
+      (snapshot) => {
+        setCommunityPosts(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+        setFetchingPosts(false);
+      },
+      (error) => {
+        console.error("Error fetching posts: ", error);
+        setFetchingPosts(false);
+      }
+    );
 
-    const unsubscribeUsers = onSnapshot(collection(firestore, "users"), (snapshot) => {
-      const users = snapshot.docs.map((doc) => doc.data());
-      setRegisteredUsers(users);
-      setTotalUsers(users.length);
-    });
+    const unsubscribeUsers = onSnapshot(
+      collection(firestore, "users"),
+      (snapshot) => {
+        const users = snapshot.docs.map((doc) => doc.data());
+        setRegisteredUsers(users);
+        setTotalUsers(users.length);
+        setFetchingUsers(false);
+      },
+      (error) => {
+        console.error("Error fetching users: ", error);
+        setFetchingUsers(false);
+      }
+    );
 
     return () => {
       unsubscribePosts();
@@ -118,7 +136,7 @@ const AdminPanel = () => {
             ))}
             <button
               type="submit"
-              className={`py-2 px-4 rounded ${loading ? "bg-gray-500" : "bg-green-600"} text-white`}
+              className={`py-2 px-4 rounded ${loading ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"} text-white`}
               disabled={loading}
             >
               {loading ? "Adding..." : "Add Herb"}
@@ -129,7 +147,9 @@ const AdminPanel = () => {
         {/* Section 2: Manage Community Posts */}
         <section className="mb-8 p-6 bg-white shadow-lg rounded-lg">
           <h2 className="text-2xl font-bold mb-4">Manage Community Posts</h2>
-          {communityPosts.length === 0 ? (
+          {fetchingPosts ? (
+            <p>Loading posts...</p>
+          ) : communityPosts.length === 0 ? (
             <p>No posts available.</p>
           ) : (
             communityPosts.map((post) => (
@@ -138,7 +158,7 @@ const AdminPanel = () => {
                 <p>{post.content}</p>
                 <button
                   onClick={() => handleDeletePost(post.id)}
-                  className="bg-red-500 text-white py-1 px-2 mt-2 rounded"
+                  className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 mt-2 rounded"
                 >
                   Delete Post
                 </button>
@@ -150,17 +170,23 @@ const AdminPanel = () => {
         {/* Section 3: Registered Users */}
         <section className="p-6 bg-white shadow-lg rounded-lg">
           <h2 className="text-2xl font-bold mb-4">Registered Users</h2>
-          <p className="text-lg">Total Registered Users: {totalUsers}</p>
-          {registeredUsers.length === 0 ? (
-            <p>No registered users available.</p>
+          {fetchingUsers ? (
+            <p>Loading users...</p>
           ) : (
-            <ul className="mt-4 space-y-2">
-              {registeredUsers.map((user, index) => (
-                <li key={index} className="p-2 border rounded shadow">
-                  {user.displayName || user.email || "Anonymous"}
-                </li>
-              ))}
-            </ul>
+            <>
+              <p className="text-lg">Total Registered Users: {totalUsers}</p>
+              {registeredUsers.length === 0 ? (
+                <p>No registered users available.</p>
+              ) : (
+                <ul className="mt-4 space-y-2">
+                  {registeredUsers.map((user, index) => (
+                    <li key={index} className="p-2 border rounded shadow">
+                      {user.displayName || user.email || "Anonymous"}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </section>
       </div>
