@@ -22,6 +22,10 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
+app.get("/", (req, res) => {
+  res.send("Api of the virtual herbal Garden");
+})
+
 // API endpoint to fetch users
 app.get("/api/users", async (req, res) => {
   try {
