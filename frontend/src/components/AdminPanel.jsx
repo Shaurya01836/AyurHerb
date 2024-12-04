@@ -19,8 +19,9 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(false);
   const [fetchingPosts, setFetchingPosts] = useState(true);
   const [fetchingUsers, setFetchingUsers] = useState(true);
+  const [showAllUsers, setShowAllUsers] = useState(false);
+  const [showAllPosts, setShowAllPosts] = useState(false);
 
-  // Fetch users from custom server
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -38,7 +39,6 @@ const AdminPanel = () => {
     fetchUsers();
   }, []);
 
-  // Fetch community posts from Firestore
   useEffect(() => {
     const unsubscribePosts = onSnapshot(
       collection(firestore, "posts"),
@@ -55,7 +55,6 @@ const AdminPanel = () => {
     return () => unsubscribePosts();
   }, []);
 
-  // Validate form inputs
   const validateHerbDetails = () => {
     const { name, description } = newHerb;
     if (!name.trim() || !description.trim()) {
@@ -65,7 +64,6 @@ const AdminPanel = () => {
     return true;
   };
 
-  // Handle Herb Submission
   const handleHerbSubmit = async (e) => {
     e.preventDefault();
     if (!validateHerbDetails()) return;
@@ -86,7 +84,6 @@ const AdminPanel = () => {
     }
   };
 
-  // Reset Herb Form
   const resetHerbForm = () => {
     setNewHerb({
       name: "",
@@ -98,7 +95,6 @@ const AdminPanel = () => {
     });
   };
 
-  // Handle Post Deletion
   const handleDeletePost = async (postId) => {
     if (!window.confirm("Are you sure you want to delete this post?")) return;
 
@@ -114,52 +110,70 @@ const AdminPanel = () => {
   return (
     <>
       <Navbar />
-      <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
-        <h1 className="text-3xl font-extrabold text-center mb-6">Admin Panel</h1>
+      <div className="p-6 md:p-12 bg-gray-100 min-h-screen flex flex-col space-y-8 mt-16">
+        <h1 className="text-4xl font-extrabold text-center text-indigo-700">Admin Panel</h1>
+
+        {/* Stats Card for Total Users */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-indigo-600 text-white p-6 rounded-lg shadow-xl text-center">
+            <h2 className="text-3xl font-semibold">Total Users</h2>
+            <p className="text-4xl font-bold">{totalUsers}</p>
+          </div>
+        </section>
 
         {/* Registered Users Section */}
-        <section className="p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Registered Users</h2>
+        <section className="bg-white shadow-xl rounded-lg p-8">
+          <h2 className="text-3xl font-semibold text-gray-700 mb-6">Registered Users</h2>
           {fetchingUsers ? (
-            <p>Loading users...</p>
+            <p className="text-lg text-gray-500">Loading users...</p>
           ) : (
             <>
-              <p className="text-lg">Total Registered Users: {totalUsers}</p>
-              {registeredUsers.length === 0 ? (
-                <p>No registered users available.</p>
-              ) : (
-                <ul className="mt-4 space-y-2">
-                  {registeredUsers.map((user, index) => (
-                    <li key={index} className="p-2 border rounded shadow">
-                      {user.email || "Anonymous"}
-                    </li>
-                  ))}
-                </ul>
+              <p className="text-xl text-gray-600">Total Registered Users: {totalUsers}</p>
+              {registeredUsers.slice(0, showAllUsers ? registeredUsers.length : 5).map((user, index) => (
+                <div key={index} className="p-4 bg-gray-50 border rounded-lg shadow-sm mb-4">
+                  <p className="text-lg text-gray-800">{user.email || "Anonymous"}</p>
+                </div>
+              ))}
+              {!showAllUsers && registeredUsers.length > 5 && (
+                <button
+                  onClick={() => setShowAllUsers(true)}
+                  className="mt-4 text-indigo-600 hover:text-indigo-800"
+                >
+                  See More
+                </button>
               )}
             </>
           )}
         </section>
 
         {/* Community Posts Section */}
-        <section className="mb-8 p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Manage Community Posts</h2>
+        <section className="bg-white shadow-xl rounded-lg p-8">
+          <h2 className="text-3xl font-semibold text-gray-700 mb-6">Manage Community Posts</h2>
           {fetchingPosts ? (
-            <p>Loading posts...</p>
+            <p className="text-lg text-gray-500">Loading posts...</p>
           ) : communityPosts.length === 0 ? (
-            <p>No posts available.</p>
+            <p className="text-lg text-gray-500">No posts available.</p>
           ) : (
-            communityPosts.map((post) => (
-              <div key={post.id} className="p-4 border rounded shadow mb-4">
-                <p className="text-lg font-bold">{post.userName}</p>
-                <p>{post.content}</p>
+            communityPosts.slice(0, showAllPosts ? communityPosts.length : 5).map((post) => (
+              <div key={post.id} className="p-6 bg-gray-50 border rounded-lg shadow-sm mb-6">
+                <p className="text-lg font-semibold text-indigo-600">{post.userName}</p>
+                <p className="text-gray-700 mt-2">{post.content}</p>
                 <button
                   onClick={() => handleDeletePost(post.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 mt-2 rounded"
+                  className="mt-4 bg-red-500 text-white hover:bg-red-600 py-2 px-6 rounded-lg focus:outline-none"
                 >
                   Delete Post
                 </button>
               </div>
             ))
+          )}
+          {!showAllPosts && communityPosts.length > 5 && (
+            <button
+              onClick={() => setShowAllPosts(true)}
+              className="mt-4 text-indigo-600 hover:text-indigo-800"
+            >
+              See More
+            </button>
           )}
         </section>
       </div>
