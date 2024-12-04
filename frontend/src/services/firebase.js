@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth"; // Import Auth SDK
 import { getDatabase } from "firebase/database"; // Import Realtime Database SDK
-import { getFirestore } from "firebase/firestore"; // Import Firestore SDK
+import { getFirestore, doc, updateDoc } from "firebase/firestore"; // Import Firestore SDK
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -31,7 +31,25 @@ const database = getDatabase(app); // Initialize Firebase Realtime Database
 const firestore = getFirestore(app); // Initialize Firestore
 
 // Export Firebase services
-export { app, auth, database, firestore }; // Export firestore as well
+export { app, auth, database, firestore };
 
 // Optional: Default export for cleaner imports
 export default { app, auth, database, firestore };
+
+// Function to update user activity in Firestore
+export const updateUserActivity = async (uid) => {
+  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+  try {
+    const userRef = doc(firestore, "users", uid);
+    await updateDoc(userRef, {
+      lastActive: new Date().toISOString(),
+      lastActiveDate: today,
+      lastActiveMonth: currentMonth,
+    });
+    console.log("User activity updated");
+  } catch (error) {
+    console.error("Failed to update user activity:", error);
+  }
+};

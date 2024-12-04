@@ -20,7 +20,25 @@ const AdminPanel = () => {
   const [fetchingPosts, setFetchingPosts] = useState(true);
   const [fetchingUsers, setFetchingUsers] = useState(true);
 
-  // Fetch data from Firestore
+  // Fetch users from custom server
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("https://herb-sphere-server.onrender.com/api/users");
+        const data = await response.json();
+        setRegisteredUsers(data.users);
+        setTotalUsers(data.totalUsers);
+      } catch (error) {
+        console.error("Error fetching users from server:", error);
+      } finally {
+        setFetchingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Fetch community posts from Firestore
   useEffect(() => {
     const unsubscribePosts = onSnapshot(
       collection(firestore, "posts"),
@@ -34,24 +52,7 @@ const AdminPanel = () => {
       }
     );
 
-    const unsubscribeUsers = onSnapshot(
-      collection(firestore, "users"),
-      (snapshot) => {
-        const users = snapshot.docs.map((doc) => doc.data());
-        setRegisteredUsers(users);
-        setTotalUsers(users.length);
-        setFetchingUsers(false);
-      },
-      (error) => {
-        console.error("Error fetching users: ", error);
-        setFetchingUsers(false);
-      }
-    );
-
-    return () => {
-      unsubscribePosts();
-      unsubscribeUsers();
-    };
+    return () => unsubscribePosts();
   }, []);
 
   // Validate form inputs
@@ -116,35 +117,30 @@ const AdminPanel = () => {
       <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
         <h1 className="text-3xl font-extrabold text-center mb-6">Admin Panel</h1>
 
-        {/* Section 1: Add Herb Details */}
-        <section className="mb-8 p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Add Herb Details</h2>
-          <form onSubmit={handleHerbSubmit} className="space-y-4">
-            {Object.entries(newHerb).map(([key, value]) => (
-              <div key={key}>
-                <input
-                  type={key === "description" ? "textarea" : "text"}
-                  placeholder={key.replace(/([A-Z])/g, " $1").toUpperCase()}
-                  value={value}
-                  onChange={(e) =>
-                    setNewHerb((prev) => ({ ...prev, [key]: e.target.value }))
-                  }
-                  required={key === "name" || key === "description"}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-            ))}
-            <button
-              type="submit"
-              className={`py-2 px-4 rounded ${loading ? "bg-gray-500" : "bg-green-600 hover:bg-green-700"} text-white`}
-              disabled={loading}
-            >
-              {loading ? "Adding..." : "Add Herb"}
-            </button>
-          </form>
+        {/* Registered Users Section */}
+        <section className="p-6 bg-white shadow-lg rounded-lg">
+          <h2 className="text-2xl font-bold mb-4">Registered Users</h2>
+          {fetchingUsers ? (
+            <p>Loading users...</p>
+          ) : (
+            <>
+              <p className="text-lg">Total Registered Users: {totalUsers}</p>
+              {registeredUsers.length === 0 ? (
+                <p>No registered users available.</p>
+              ) : (
+                <ul className="mt-4 space-y-2">
+                  {registeredUsers.map((user, index) => (
+                    <li key={index} className="p-2 border rounded shadow">
+                      {user.email || "Anonymous"}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
         </section>
 
-        {/* Section 2: Manage Community Posts */}
+        {/* Community Posts Section */}
         <section className="mb-8 p-6 bg-white shadow-lg rounded-lg">
           <h2 className="text-2xl font-bold mb-4">Manage Community Posts</h2>
           {fetchingPosts ? (
@@ -164,29 +160,6 @@ const AdminPanel = () => {
                 </button>
               </div>
             ))
-          )}
-        </section>
-
-        {/* Section 3: Registered Users */}
-        <section className="p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Registered Users</h2>
-          {fetchingUsers ? (
-            <p>Loading users...</p>
-          ) : (
-            <>
-              <p className="text-lg">Total Registered Users: {totalUsers}</p>
-              {registeredUsers.length === 0 ? (
-                <p>No registered users available.</p>
-              ) : (
-                <ul className="mt-4 space-y-2">
-                  {registeredUsers.map((user, index) => (
-                    <li key={index} className="p-2 border rounded shadow">
-                      {user.displayName || user.email || "Anonymous"}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </>
           )}
         </section>
       </div>
