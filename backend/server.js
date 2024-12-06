@@ -21,9 +21,42 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 
-// Home route
-app.get("/", (req, res) => {
-  res.send("API of the Virtual Herbal Garden");
+// Home route: Increment visit count each time the API is accessed
+app.get("/", async (req, res) => {
+  try {
+    const visitRef = admin.firestore().collection("stats").doc("visitCount");
+    const visitDoc = await visitRef.get();
+
+    if (!visitDoc.exists) {
+      // If visit count document doesn't exist, create it
+      await visitRef.set({ count: 1 });
+    } else {
+      // If document exists, increment the count
+      await visitRef.update({ count: admin.firestore.FieldValue.increment(1) });
+    }
+
+    res.send("API of the Virtual Herbal Garden");
+  } catch (error) {
+    console.error("Error incrementing visit count:", error);
+    res.status(500).json({ error: "Failed to increment visit count" });
+  }
+});
+
+// Fetch visit count
+app.get("/api/visit-count", async (req, res) => {
+  try {
+    const visitRef = admin.firestore().collection("stats").doc("visitCount");
+    const visitDoc = await visitRef.get();
+
+    if (!visitDoc.exists) {
+      res.status(200).json({ visitCount: 0 });
+    } else {
+      res.status(200).json({ visitCount: visitDoc.data().count });
+    }
+  } catch (error) {
+    console.error("Error fetching visit count:", error);
+    res.status(500).json({ error: "Failed to fetch visit count" });
+  }
 });
 
 // API endpoint to fetch users
@@ -43,49 +76,6 @@ app.get("/api/users", async (req, res) => {
 });
 
 // Fetch active users (logged in within the last 5 minutes)
-app.get("/api/active-users", async (req, res) => {
-  try {
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-    const usersRef = admin.firestore().collection("users");
-    const snapshot = await usersRef.where("lastActive", ">", fiveMinutesAgo).get();
-
-    const activeUsers = snapshot.docs.map((doc) => doc.data());
-    res.status(200).json({ activeUsersCount: activeUsers.length, activeUsers });
-  } catch (error) {
-    console.error("Error fetching active users:", error);
-    res.status(500).json({ error: "Failed to fetch active users" });
-  }
-});
-
-// Fetch daily active users
-app.get("/api/daily-active-users", async (req, res) => {
-  try {
-    const today = new Date().toISOString().split("T")[0];
-    const usersRef = admin.firestore().collection("users");
-    const snapshot = await usersRef.where("lastActiveDate", "==", today).get();
-
-    const dailyActiveUsers = snapshot.docs.map((doc) => doc.data());
-    res.status(200).json({ dailyActiveUsersCount: dailyActiveUsers.length, dailyActiveUsers });
-  } catch (error) {
-    console.error("Error fetching daily active users:", error);
-    res.status(500).json({ error: "Failed to fetch daily active users" });
-  }
-});
-
-// Fetch monthly active users
-app.get("/api/monthly-active-users", async (req, res) => {
-  try {
-    const currentMonth = new Date().toISOString().slice(0, 7);
-    const usersRef = admin.firestore().collection("users");
-    const snapshot = await usersRef.where("lastActiveMonth", "==", currentMonth).get();
-
-    const monthlyActiveUsers = snapshot.docs.map((doc) => doc.data());
-    res.status(200).json({ monthlyActiveUsersCount: monthlyActiveUsers.length, monthlyActiveUsers });
-  } catch (error) {
-    console.error("Error fetching monthly active users:", error);
-    res.status(500).json({ error: "Failed to fetch monthly active users" });
-  }
-});
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

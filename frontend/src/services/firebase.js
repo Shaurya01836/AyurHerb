@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth"; // Import Auth SDK
 import { getDatabase } from "firebase/database"; // Import Realtime Database SDK
-import { getFirestore, doc, updateDoc } from "firebase/firestore"; // Import Firestore SDK
+import { getFirestore, doc, updateDoc, increment, getDoc } from "firebase/firestore"; // Import Firestore SDK
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -51,5 +51,36 @@ export const updateUserActivity = async (uid) => {
     console.log("User activity updated");
   } catch (error) {
     console.error("Failed to update user activity:", error);
+  }
+};
+
+// Function to increment the visit count
+export const incrementVisitCount = async () => {
+  try {
+    const visitRef = doc(firestore, "visits", "visitCount");
+    await updateDoc(visitRef, {
+      count: increment(1),
+    });
+    console.log("Visit count incremented successfully");
+  } catch (error) {
+    console.error("Failed to increment visit count:", error);
+  }
+};
+
+// Function to get the current visit count
+export const getVisitCount = async () => {
+  try {
+    const visitRef = doc(firestore, "visits", "visitCount");
+    const visitDoc = await getDoc(visitRef);
+
+    if (visitDoc.exists()) {
+      return visitDoc.data().count; // Return the count field
+    } else {
+      console.error("Visit count document does not exist!");
+      return 0;
+    }
+  } catch (error) {
+    console.error("Failed to fetch visit count:", error);
+    return 0;
   }
 };

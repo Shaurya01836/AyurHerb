@@ -1,5 +1,5 @@
 {
-  "engines" : {
+  "engines": {
     "node": "20.18.0"
   },
   "name": "backend",
@@ -15,9 +15,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google-cloud/bigquery": "^7.9.1",
+    "amplitude-js": "^8.21.9",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "firebase-admin": "^13.0.1"
   }
 }
