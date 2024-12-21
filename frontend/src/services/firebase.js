@@ -56,31 +56,15 @@ export const updateUserActivity = async (uid) => {
 
 // Function to increment the visit count
 export const incrementVisitCount = async () => {
-  try {
-    const visitRef = doc(firestore, "visits", "visitCount");
-    await updateDoc(visitRef, {
-      count: increment(1),
-    });
-    console.log("Visit count incremented successfully");
-  } catch (error) {
-    console.error("Failed to increment visit count:", error);
-  }
+  const visitRef = doc(firestore, "stats", "visitCount");
+  await updateDoc(visitRef, {
+    count: increment(1),
+  });
 };
 
 // Function to get the current visit count
 export const getVisitCount = async () => {
-  try {
-    const visitRef = doc(firestore, "visits", "visitCount");
-    const visitDoc = await getDoc(visitRef);
-
-    if (visitDoc.exists()) {
-      return visitDoc.data().count; // Return the count field
-    } else {
-      console.error("Visit count document does not exist!");
-      return 0;
-    }
-  } catch (error) {
-    console.error("Failed to fetch visit count:", error);
-    return 0;
-  }
+  const visitRef = doc(firestore, "stats", "visitCount");
+  const visitDoc = await getDoc(visitRef);
+  return visitDoc.exists() ? visitDoc.data().count : 0;
 };

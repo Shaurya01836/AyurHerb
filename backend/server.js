@@ -20,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-
+app.use(express.json()); 
 // Home route: Increment visit count each time the API is accessed
 app.get("/", async (req, res) => {
   try {
@@ -28,10 +28,8 @@ app.get("/", async (req, res) => {
     const visitDoc = await visitRef.get();
 
     if (!visitDoc.exists) {
-      // If visit count document doesn't exist, create it
       await visitRef.set({ count: 1 });
     } else {
-      // If document exists, increment the count
       await visitRef.update({ count: admin.firestore.FieldValue.increment(1) });
     }
 
@@ -48,16 +46,13 @@ app.get("/api/visit-count", async (req, res) => {
     const visitRef = admin.firestore().collection("stats").doc("visitCount");
     const visitDoc = await visitRef.get();
 
-    if (!visitDoc.exists) {
-      res.status(200).json({ visitCount: 0 });
-    } else {
-      res.status(200).json({ visitCount: visitDoc.data().count });
-    }
+    res.status(200).json({ visitCount: visitDoc.exists ? visitDoc.data().count : 0 });
   } catch (error) {
     console.error("Error fetching visit count:", error);
     res.status(500).json({ error: "Failed to fetch visit count" });
   }
 });
+
 
 // API endpoint to fetch users
 app.get("/api/users", async (req, res) => {

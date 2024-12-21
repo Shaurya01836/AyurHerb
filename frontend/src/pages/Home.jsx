@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import PlantCard from "../components/PlantCard";
 import { fetchPlants } from "../services/api";
-// import { fincrementVisitCount } from "../services/firebase";
+import { incrementVisitCount } from "../services/firebase";
 import { Link } from "react-router-dom";
 import FirstPage from "../components/FirstPage";
 import AyushCards from "../components/AyushCards";
 import Footer from "../components/Footer";
 import QuizPopup from "../components/QuizPopup";
-import { getVisitCount } from "../services/firebase";
-
+import {getVisitCount} from '../services/firebase';
 // import Slider from "react-slick";
 
 const Home = () => {
@@ -27,13 +26,36 @@ const Home = () => {
   const [bookmarkedPlants, setBookmarkedPlants] = useState([]); // State to hold bookmarked plants
   const [isOpen, setIsOpen] = useState(false); // State to manage the hamburger menu
 
+  useEffect(() => {
+    const fetchVisitCount = async () => {
+      try {
+        const count = await getVisitCount();
+        console.log("Visit count:", count);
+      } catch (err) {
+        console.error("Failed to fetch visit count:", err);
+      }
+    };
+  
+    const incrementVisit = async () => {
+      try {
+        await incrementVisitCount();
+      } catch (error) {
+        console.error("Error incrementing visit count:", error);
+      }
+    };
+  
+    fetchVisitCount();
+    incrementVisit(); // Call increment only once
+  }, []);
+  
+
+
+
+
   // Fetch plants data on component mount
   useEffect(() => {
 
-    const fetchVisitCount = async () => {
-      const count = await getVisitCount();
-      // console.log("Current visit count:", count);
-    };
+  
     const getPlants = async () => {
       try {
         const response = await fetchPlants(); // Fetch data from the API
@@ -157,14 +179,7 @@ const Home = () => {
     setIsOpen(!isOpen);
   };
 
-      const incrementVisit = async () => {
-        try {
-          await incrementVisitCount();
-        } catch (error) {
-          console.error("Error incrementing visit count:", error);
-        }
-      };
-      incrementVisit();
+
     
 
   // Render the list of PlantCards and the popup if open

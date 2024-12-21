@@ -22,6 +22,7 @@ const AdminPanel = () => {
   const [showAllUsers, setShowAllUsers] = useState(false);
   const [showAllPosts, setShowAllPosts] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingVisitCount, setIsLoadingVisitCount] = useState(true);
 
   // Fetch registered users
   useEffect(() => {
@@ -69,7 +70,7 @@ const AdminPanel = () => {
           throw new Error("Failed to fetch visit count");
         }
         const data = await response.json();
-        // console.log("Visit Count Data:", data); // Log API response for debugging
+        console.log("Visit Count Data:", data); // Log API response for debugging
         if (data && data.visitCount !== undefined) {
           setVisitCount(data.visitCount);
         } else {
@@ -78,13 +79,13 @@ const AdminPanel = () => {
       } catch (error) {
         console.error("Error fetching visit count:", error);
       } finally {
-        setLoadingVisitCount(false);
+        setIsLoadingVisitCount(false); // Corrected state update
       }
     };
-
+  
     fetchVisitData();
   }, []);
-
+  
   const validateHerbDetails = () => {
     const { name, description } = newHerb;
     if (!name.trim() || !description.trim()) {
