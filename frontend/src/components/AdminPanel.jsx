@@ -69,7 +69,7 @@ const AdminPanel = () => {
           throw new Error("Failed to fetch visit count");
         }
         const data = await response.json();
-        console.log("Visit Count Data:", data); // Log API response for debugging
+        // console.log("Visit Count Data:", data); // Log API response for debugging
         if (data && data.visitCount !== undefined) {
           setVisitCount(data.visitCount);
         } else {

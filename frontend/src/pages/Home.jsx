@@ -32,12 +32,12 @@ const Home = () => {
 
     const fetchVisitCount = async () => {
       const count = await getVisitCount();
-      console.log("Current visit count:", count);
+      // console.log("Current visit count:", count);
     };
     const getPlants = async () => {
       try {
         const response = await fetchPlants(); // Fetch data from the API
-        console.log(response); // Log the response data to the console
+        // console.log(response); // Log the response data to the console
         setPlants(response.data); // Correctly set plant data to state
       } catch (err) {
         console.error("Error fetching plants:", err); // Log the error for debugging
