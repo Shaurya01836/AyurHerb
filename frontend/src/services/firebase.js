@@ -20,7 +20,7 @@ let app;
 try {
   // Initialize Firebase
   app = initializeApp(firebaseConfig);
-  console.log("Firebase initialized successfully");
+  // console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization failed:", error);
 }
