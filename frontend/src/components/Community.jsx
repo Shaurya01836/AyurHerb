@@ -11,7 +11,7 @@ import {
   updateDoc,
   doc,
 } from "firebase/firestore";
-import { FiThumbsUp } from "react-icons/fi";
+import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
 import Navbar from "./Navbar";
 
 const CommunityForum = () => {
@@ -20,7 +20,8 @@ const CommunityForum = () => {
   const [newPost, setNewPost] = useState("");
   const [newReply, setNewReply] = useState("");
   const [activePostId, setActivePostId] = useState(null);
-  const [likes, setLikes] = useState({}); // Store like counts
+  const [likes, setLikes] = useState({});
+  const [dislikes, setDislikes] = useState({}); // Store dislike counts
 
   useEffect(() => {
     // Fetch authenticated user
@@ -44,12 +45,18 @@ const CommunityForum = () => {
       }));
       setPosts(postsData);
 
-      // Set initial likes
+      // Set initial likes and dislikes
       const initialLikes = postsData.reduce((acc, post) => {
         acc[post.id] = post.likes || 0;
         return acc;
       }, {});
       setLikes(initialLikes);
+
+      const initialDislikes = postsData.reduce((acc, post) => {
+        acc[post.id] = post.dislikes || 0;
+        return acc;
+      }, {});
+      setDislikes(initialDislikes);
     });
 
     return () => {
@@ -68,8 +75,10 @@ const CommunityForum = () => {
           userName: user.displayName || user.email || "Anonymous",
           createdAt: serverTimestamp(),
           replies: [],
-          likes: 0, // Initialize likes
-          likedBy: [], // Initialize an array to keep track of user IDs who liked this post
+          likes: 0,
+          dislikes: 0,
+          likedBy: [],
+          dislikedBy: [],
         });
         setNewPost("");
       } catch (error) {
@@ -106,22 +115,41 @@ const CommunityForum = () => {
     const postRef = doc(firestore, "posts", postId);
     const post = posts.find((p) => p.id === postId);
 
-    // Check if the user has already liked the post
-    if (post.likedBy && post.likedBy.includes(user.uid)) {
-      alert("You have already liked this post.");
-      return;
-    }
-
-    const newLikes = (likes[postId] || 0) + 1;
+    const isLiked = post.likedBy?.includes(user.uid);
+    const newLikes = isLiked ? (likes[postId] || 0) - 1 : (likes[postId] || 0) + 1;
 
     try {
       await updateDoc(postRef, {
         likes: newLikes,
-        likedBy: [...(post.likedBy || []), user.uid], // Add the user's ID to the likedBy array
+        likedBy: isLiked
+          ? post.likedBy.filter((id) => id !== user.uid)
+          : [...(post.likedBy || []), user.uid],
       });
       setLikes({ ...likes, [postId]: newLikes });
     } catch (error) {
       console.error("Error updating likes: ", error);
+    }
+  };
+
+  const handleDislike = async (postId) => {
+    const postRef = doc(firestore, "posts", postId);
+    const post = posts.find((p) => p.id === postId);
+
+    const isDisliked = post.dislikedBy?.includes(user.uid);
+    const newDislikes = isDisliked
+      ? (dislikes[postId] || 0) - 1
+      : (dislikes[postId] || 0) + 1;
+
+    try {
+      await updateDoc(postRef, {
+        dislikes: newDislikes,
+        dislikedBy: isDisliked
+          ? post.dislikedBy.filter((id) => id !== user.uid)
+          : [...(post.dislikedBy || []), user.uid],
+      });
+      setDislikes({ ...dislikes, [postId]: newDislikes });
+    } catch (error) {
+      console.error("Error updating dislikes: ", error);
     }
   };
 
@@ -190,6 +218,13 @@ const CommunityForum = () => {
                   >
                     <FiThumbsUp size={20} />
                     <span>{likes[post.id] || 0}</span>
+                  </button>
+                  <button
+                    className="flex items-center space-x-1 text-red-600 hover:text-red-800"
+                    onClick={() => handleDislike(post.id)}
+                  >
+                    <FiThumbsDown size={20} />
+                    <span>{dislikes[post.id] || 0}</span>
                   </button>
                 </div>
 
