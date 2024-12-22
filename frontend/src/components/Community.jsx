@@ -211,32 +211,33 @@ const CommunityForum = () => {
               <p className="text-gray-700 mb-4">{post.content}</p>
 
               <div className="flex justify-between items-center mb-4">
-                <div className="flex space-x-4">
-                  <button
-                    className="flex items-center space-x-1 text-green-600 hover:text-green-800"
-                    onClick={() => handleLike(post.id)}
-                  >
-                    <FiThumbsUp size={20} />
-                    <span>{likes[post.id] || 0}</span>
-                  </button>
-                  <button
-                    className="flex items-center space-x-1 text-red-600 hover:text-red-800"
-                    onClick={() => handleDislike(post.id)}
-                  >
-                    <FiThumbsDown size={20} />
-                    <span>{dislikes[post.id] || 0}</span>
-                  </button>
-                </div>
+  <div className="flex space-x-4">
+    <button
+      className="flex items-center space-x-1 text-green-600 hover:text-green-800"
+      onClick={() => handleLike(post.id)}
+    >
+      <FiThumbsUp size={20} />
+      <span>{likes[post.id] || 0}</span>
+    </button>
+    <button
+      className="flex items-center space-x-1 text-red-600 hover:text-red-800"
+      onClick={() => handleDislike(post.id)}
+    >
+      <FiThumbsDown size={20} />
+      <span>{dislikes[post.id] || 0}</span>
+    </button>
+  </div>
 
-                <button
-                  className="text-blue-600 hover:underline font-medium"
-                  onClick={() =>
-                    setActivePostId(post.id === activePostId ? null : post.id)
-                  }
-                >
-                  {activePostId === post.id ? "Hide Replies" : "View Replies"}
-                </button>
-              </div>
+  <button
+    className="text-blue-600 hover:underline font-medium"
+    onClick={() => setActivePostId(post.id === activePostId ? null : post.id)}
+  >
+    {activePostId === post.id
+      ? `Hide Replies (${post.replies.length})`
+      : `View Replies (${post.replies.length})`}
+  </button>
+</div>
+
 
               {activePostId === post.id && (
                 <div className="mt-4">
