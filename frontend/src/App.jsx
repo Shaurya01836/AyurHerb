@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import ARPage from './pages/ARPage';  // Import the AR page
 import HealthWellness from './components/HealthWellness';
 import Login from './components/Login';
 import Register from './components/Register';
@@ -23,7 +22,6 @@ const App = () => {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} /> {/* About Page */}
-          <Route path="/ar" element={<ARPage />} /> {/* AR Page */}
           <Route path="/health-wellness" element={<HealthWellness />} />
           <Route path="/gardening-tips" element={<GardeningTips />} /> 
           <Route path="/myherbs" element={<MyHerbs />} /> 
