@@ -28,7 +28,7 @@ export const fetchHerbs = async (limit = 13, offset = 0) => {
 // Create a new herb
 export const createHerb = async (herbData) => {
   try {
-    const response = await axios.post(`${BASE_URL}`, herbData, { headers });
+    const response = await axios.post(`${BASE_URL}/herbs`, herbData, { headers });
     return response.data;
   } catch (error) {
     console.error('Error creating herb:', error.message);
@@ -39,7 +39,7 @@ export const createHerb = async (herbData) => {
 // Update an existing herb
 export const updateHerb = async (id, herbData) => {
   try {
-    const response = await axios.patch(`${BASE_URL}/${id}`, herbData, { headers });
+    const response = await axios.patch(`${BASE_URL}/herbs/${id}`, herbData, { headers });
     return response.data;
   } catch (error) {
     console.error('Error updating herb:', error.message);
@@ -50,7 +50,7 @@ export const updateHerb = async (id, herbData) => {
 // Delete an herb
 export const deleteHerb = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}/${id}`, { headers });
+    const response = await axios.delete(`${BASE_URL}/herbs/${id}`, { headers });
     return response.data;
   } catch (error) {
     console.error('Error deleting herb:', error.message);
