@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { firestore } from "../services/firebase";
-import { collection, addDoc, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import Navbar from "./Navbar";
-
 
 const AdminPanel = () => {
   const [newHerb, setNewHerb] = useState({
@@ -18,6 +23,7 @@ const AdminPanel = () => {
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [visitCount, setVisitCount] = useState(0);
+  const [postCount, setPostCount] = useState(0); // New state for post count
   const [activeSection, setActiveSection] = useState("stats");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,12 +32,14 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("https://herb-sphere-server.onrender.com/api/users");
+        const response = await fetch(
+          "https://herb-sphere-server.onrender.com/api/users"
+        );
         const data = await response.json();
         setRegisteredUsers(data.users);
         setTotalUsers(data.totalUsers);
       } catch (error) {
-        console.error("Error fetching users from server:", error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -43,9 +51,12 @@ const AdminPanel = () => {
     const unsubscribePosts = onSnapshot(
       collection(firestore, "posts"),
       (snapshot) => {
-        setCommunityPosts(
-          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-        );
+        const posts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCommunityPosts(posts); // Set posts
+        setPostCount(posts.length); // Set post count
       },
       (error) => {
         console.error("Error fetching posts:", error);
@@ -59,10 +70,9 @@ const AdminPanel = () => {
   useEffect(() => {
     const fetchVisitData = async () => {
       try {
-        const response = await fetch("https://herb-sphere-server.onrender.com/api/visit-count");
-        if (!response.ok) {
-          throw new Error("Failed to fetch visit count");
-        }
+        const response = await fetch(
+          "https://herb-sphere-server.onrender.com/api/visit-count"
+        );
         const data = await response.json();
         setVisitCount(data.visitCount || 0);
       } catch (error) {
@@ -96,7 +106,7 @@ const AdminPanel = () => {
       resetHerbForm();
     } catch (error) {
       console.error("Error adding herb:", error);
-      alert("Failed to add herb details. Please try again.");
+      alert("Failed to add herb.");
     } finally {
       setIsSubmitting(false);
     }
@@ -121,19 +131,19 @@ const AdminPanel = () => {
       alert("Post deleted successfully!");
     } catch (error) {
       console.error("Error deleting post:", error);
-      alert("Failed to delete the post.");
+      alert("Failed to delete post.");
     }
   };
 
   return (
     <>
       <Navbar />
-      <div className="flex ">
+      <div className="flex">
         {/* Sidebar */}
         <div
-          className={`$ {
+          className={`${
             isSidebarOpen ? "w-64" : "w-20"
-          } bg-green-800 text-white h-screen fixed transition-width duration-300 flex flex-col w-64`}
+          } bg-green-800 text-white h-screen fixed transition-width duration-300 flex flex-col`}
         >
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -152,8 +162,8 @@ const AdminPanel = () => {
                 key={id}
                 onClick={() => setActiveSection(id)}
                 className={`hover:bg-green-700 p-3 rounded ${
-                activeSection === id ? "bg-green-600" : ""
-              }`}
+                  activeSection === id ? "bg-green-600" : ""
+                }`}
               >
                 {label}
               </button>
@@ -167,78 +177,72 @@ const AdminPanel = () => {
             Admin Panel
           </h1>
 
-          {/* Render Active Section */}
+          {/* Active Section */}
           {activeSection === "stats" && (
-            <section id="stats" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-green-600 text-white p-6 rounded-lg shadow-xl text-center">
-                <h2 className="text-3xl font-semibold">Total Users</h2>
+            <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="bg-green-600 text-white p-6 rounded-lg text-center">
+                <h2 className="text-3xl">Total Users</h2>
                 <p className="text-4xl font-bold">{totalUsers}</p>
               </div>
-              <div className="bg-blue-600 text-white p-6 rounded-lg shadow-xl text-center">
-                <h2 className="text-3xl font-semibold">Visit Count</h2>
+              <div className="bg-blue-600 text-white p-6 rounded-lg text-center">
+                <h2 className="text-3xl">Visit Count</h2>
                 <p className="text-4xl font-bold">{visitCount}</p>
+              </div>
+              <div className="bg-purple-600 text-white p-6 rounded-lg text-center">
+                <h2 className="text-3xl">Community Posts</h2>
+                <p className="text-4xl font-bold">{postCount}</p>
               </div>
             </section>
           )}
 
           {activeSection === "users" && (
-            <section id="users" className="bg-green-100 shadow-xl rounded-lg p-8">
-              <h2 className="text-3xl font-semibold text-green-900 mb-6">Registered Users</h2>
+            <section className="bg-white shadow p-6 rounded-lg">
+              <h2 className="text-3xl mb-4">Registered Users</h2>
               {registeredUsers.map((user, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gray-50 border rounded-lg shadow-sm mb-4"
-                >
-                  <p className="text-lg text-gray-800">
-                    {user.email || "Anonymous"}
-                  </p>
-                </div>
+                <p key={index} className="border-b py-2">
+                  {user.email || "Anonymous"}
+                </p>
               ))}
             </section>
           )}
 
           {activeSection === "posts" && (
-            <section id="posts" className="bg-green-100 shadow-xl rounded-lg p-8">
-              <h2 className="text-3xl font-semibold text-green-900 mb-6">
-                Manage Community Posts
-              </h2>
-              {communityPosts.length === 0 ? (
-                <p className="text-lg text-green-900">No posts available.</p>
-              ) : (
-                communityPosts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="p-4 bg-gray-50 border rounded-lg shadow-sm mb-4"
+            <section className="bg-white shadow p-6 rounded-lg">
+              <h2 className="text-3xl mb-4">Community Posts</h2>
+              {communityPosts.map((post) => (
+                <div key={post.id} className="p-4 border rounded mb-4">
+                  <p>{post.content}</p>
+                  <button
+                    onClick={() => handleDeletePost(post.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded mt-2"
                   >
-                    <p className="text-lg text-gray-800">{post.content}</p>
-                    <button
-                      onClick={() => handleDeletePost(post.id)}
-                      className="bg-red-600 text-white px-4 py-2 rounded mt-2"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))
-              )}
+                    Delete
+                  </button>
+                </div>
+              ))}
             </section>
           )}
 
           {activeSection === "add-herb" && (
-            <section id="add-herb" className="bg-green-100 shadow-xl rounded-lg p-8">
-              <h2 className="text-3xl font-semibold text-green-900 mb-6">Add New Herb</h2>
-              <form onSubmit={handleHerbSubmit} className="space-y-4">
+            <section className="bg-white shadow p-6 rounded-lg">
+              <h2 className="text-3xl mb-4">Add New Herb</h2>
+              <form onSubmit={handleHerbSubmit}>
                 <input
                   type="text"
                   placeholder="Name"
                   value={newHerb.name}
-                  onChange={(e) => setNewHerb({ ...newHerb, name: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, name: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
                 />
                 <textarea
                   placeholder="Description"
                   value={newHerb.description}
-                  onChange={(e) => setNewHerb({ ...newHerb, description: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, description: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
                 />
                 <button
                   type="submit"
@@ -254,4 +258,5 @@ const AdminPanel = () => {
     </>
   );
 };
+
 export default AdminPanel;
