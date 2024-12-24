@@ -8,6 +8,7 @@ import {
   doc,
 } from "firebase/firestore";
 import Navbar from "./Navbar";
+import { fetchHerbs } from "../services/api"; // Import the fetchHerbs function
 
 const AdminPanel = () => {
   const [newHerb, setNewHerb] = useState({
@@ -24,6 +25,8 @@ const AdminPanel = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [visitCount, setVisitCount] = useState(0);
   const [postCount, setPostCount] = useState(0); // New state for post count
+  const [herbs, setHerbs] = useState([]); // State to hold fetched herbs
+  const [herbCount, setHerbCount] = useState(0); // State to hold the number of herbs
   const [activeSection, setActiveSection] = useState("stats");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -81,6 +84,21 @@ const AdminPanel = () => {
     };
 
     fetchVisitData();
+  }, []);
+
+  // Fetch herbs data
+  useEffect(() => {
+    const getHerbs = async () => {
+      try {
+        const response = await fetchHerbs();
+        setHerbs(response.data);
+        setHerbCount(response.data.length); // Set the number of herbs
+      } catch (error) {
+        console.error("Error fetching herbs:", error);
+      }
+    };
+
+    getHerbs();
   }, []);
 
   const validateHerbDetails = () => {
@@ -157,6 +175,7 @@ const AdminPanel = () => {
               { id: "users", label: "Registered Users" },
               { id: "posts", label: "Community Posts" },
               { id: "add-herb", label: "Add New Herb" },
+              { id: "manage-herbs", label: "Manage Herbs" }, // New section for managing herbs
             ].map(({ id, label }) => (
               <button
                 key={id}
@@ -191,6 +210,10 @@ const AdminPanel = () => {
               <div className="bg-purple-600 text-white p-6 rounded-lg text-center">
                 <h2 className="text-3xl">Community Posts</h2>
                 <p className="text-4xl font-bold">{postCount}</p>
+              </div>
+              <div className="bg-yellow-600 text-white p-6 rounded-lg text-center">
+                <h2 className="text-3xl">Total Herbs</h2>
+                <p className="text-4xl font-bold">{herbCount}</p>
               </div>
             </section>
           )}
@@ -251,6 +274,38 @@ const AdminPanel = () => {
                   {isSubmitting ? "Adding..." : "Add Herb"}
                 </button>
               </form>
+            </section>
+          )}
+
+          {activeSection === "manage-herbs" && (
+            <section className="bg-white shadow p-6 rounded-lg">
+              <h2 className="text-3xl mb-4">Manage Herbs</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {herbs.map((herb) => (
+                  <div
+                    key={herb._id}
+                    className="bg-white border rounded-lg shadow-md overflow-hidden"
+                  >
+                    <img
+                      src={herb.imageSrc}
+                      alt={herb.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="p-4">
+                      <h3 className="text-xl font-bold mb-2">{herb.name}</h3>
+                      <p className="text-gray-700 mb-4">{herb.description}</p>
+                      <a
+                        href={herb.sketchfabModelUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        View 3D Model
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
           )}
         </div>
