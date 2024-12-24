@@ -4,7 +4,7 @@ import { auth } from "../services/firebase"; // Ensure this is correct
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
 import { useNavigate, Link } from "react-router-dom"; // Import Link from react-router-dom
-
+import Navbar from "./Navbar";
 const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -42,6 +42,7 @@ const Register = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-green-50 p-4 sm:p-8">
+      <Navbar/>
       <div className="bg-white p-6 sm:p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold text-center text-green-600">
           Register
