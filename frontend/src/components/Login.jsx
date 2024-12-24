@@ -1,8 +1,8 @@
-// src/components/Login.jsx
 import React, { useState } from "react";
-import { auth } from "../services/firebase"; // Import Firebase auth
+import { auth, firestore } from "../services/firebase"; // Import Firebase auth and firestore
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom"; // Import Link from react-router-dom
+import { doc, getDoc } from "firebase/firestore"; // Import getDoc from firestore
 import Navbar from "./Navbar";
 
 const Login = () => {
@@ -25,6 +25,33 @@ const Login = () => {
     }
   };
 
+  const handleAdminLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const adminDoc = await getDoc(doc(firestore, "admins", email));
+      if (adminDoc.exists()) {
+        const adminData = adminDoc.data();
+        if (adminData.password === password) {
+          await signInWithEmailAndPassword(auth, email, password);
+
+          // Show success alert
+          window.alert("Admin login successful! Redirecting to admin panel.");
+          navigate("/admin"); // Redirect to admin panel after successful login
+        } else {
+          // Show error alert
+          window.alert("Error logging in: Incorrect password.");
+        }
+      } else {
+        // Show error alert
+        window.alert("Error logging in: Admin email not found.");
+      }
+    } catch (error) {
+      // Show error alert
+      window.alert(`Error logging in: ${error.message}`);
+      console.error("Error logging in:", error.message);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -39,7 +66,7 @@ const Login = () => {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-green-300 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="p-2 border rounded w-full mb-4"
               required
             />
             <input
@@ -47,26 +74,26 @@ const Login = () => {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-green-300 rounded mt-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="p-2 border rounded w-full mb-4"
               required
             />
             <button
               type="submit"
-              className="w-full mt-4 bg-green-600 text-white p-2 rounded hover:bg-green-700 transition duration-200"
+              className="bg-green-600 text-white px-4 py-2 rounded w-full"
             >
               Login
             </button>
           </form>
+          <button
+            onClick={handleAdminLogin}
+            className="bg-blue-600 text-white px-4 py-2 rounded w-full mt-4"
+          >
+            Login as Admin
+          </button>
           <div className="mt-4 text-center">
-            <p className="text-gray-600">
-              Not a user?{" "}
-              <Link
-                to="/register"
-                className="text-green-600 font-bold hover:underline"
-              >
-                Register
-              </Link>
-            </p>
+            <Link to="/register" className="text-blue-500 hover:underline">
+              Don't have an account? Register
+            </Link>
           </div>
         </div>
       </div>
