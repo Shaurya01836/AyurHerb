@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PlantCard from "../components/PlantCard";
-import { fetchPlants } from "../services/api";
+import { fetchHerbs } from "../services/api";
 import { incrementVisitCount } from "../services/firebase";
 import { Link } from "react-router-dom";
 import FirstPage from "../components/FirstPage";
@@ -49,16 +49,13 @@ const Home = () => {
   }, []);
   
 
-
-
-
   // Fetch plants data on component mount
   useEffect(() => {
 
   
     const getPlants = async () => {
       try {
-        const response = await fetchPlants(); // Fetch data from the API
+        const response = await fetchHerbs(); // Fetch data from the API
         // console.log(response); // Log the response data to the console
         setPlants(response.data); // Correctly set plant data to state
       } catch (err) {
@@ -180,9 +177,6 @@ const Home = () => {
   };
 
 
-    
-
-  // Render the list of PlantCards and the popup if open
   return (
     <div className="font-poppins scrollbar-thin">
       {/* Navbar */}
