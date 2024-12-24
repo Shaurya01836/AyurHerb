@@ -6,18 +6,53 @@ import {
   onSnapshot,
   deleteDoc,
   doc,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import Navbar from "./Navbar";
 import { fetchHerbs } from "../services/api"; // Import the fetchHerbs function
+import { Bar } from "react-chartjs-2"; // Import Bar chart from react-chartjs-2
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const AdminPanel = () => {
   const [newHerb, setNewHerb] = useState({
+    imageSrc: "",
+    multimedia1: "",
+    multimedia2: "",
+    multimedia3: "",
+    multimedia4: "",
     name: "",
+    region: "",
+    type: "",
+    habitat: "",
+    botanicalName: "",
+    commonNames: "",
+    meduses: "",
+    methofcul: "",
     description: "",
-    youtubeLink: "",
-    multimediaLinks: "",
-    audioLink: "",
-    modelLink: "",
+    sketchfabModelUrl: "",
+    audioSrc: "",
+    methodsOfCultivation: "",
+    medicinalUses: "",
   });
 
   const [communityPosts, setCommunityPosts] = useState([]);
@@ -132,12 +167,24 @@ const AdminPanel = () => {
 
   const resetHerbForm = () => {
     setNewHerb({
+      imageSrc: "",
+      multimedia1: "",
+      multimedia2: "",
+      multimedia3: "",
+      multimedia4: "",
       name: "",
+      region: "",
+      type: "",
+      habitat: "",
+      botanicalName: "",
+      commonNames: "",
+      meduses: "",
+      methofcul: "",
       description: "",
-      youtubeLink: "",
-      multimediaLinks: "",
-      audioLink: "",
-      modelLink: "",
+      sketchfabModelUrl: "",
+      audioSrc: "",
+      methodsOfCultivation: "",
+      medicinalUses: "",
     });
   };
 
@@ -151,6 +198,20 @@ const AdminPanel = () => {
       console.error("Error deleting post:", error);
       alert("Failed to delete post.");
     }
+  };
+
+  // Data for the comparison bar chart
+  const comparisonChartData = {
+    labels: ["Total Users", "Visit Count"],
+    datasets: [
+      {
+        label: "Count",
+        data: [totalUsers, visitCount],
+        backgroundColor: ["rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)"],
+        borderColor: ["rgba(75, 192, 192, 1)", "rgba(54, 162, 235, 1)"],
+        borderWidth: 1,
+      },
+    ],
   };
 
   return (
@@ -211,9 +272,12 @@ const AdminPanel = () => {
                 <h2 className="text-3xl">Community Posts</h2>
                 <p className="text-4xl font-bold">{postCount}</p>
               </div>
-              <div className="bg-yellow-600 text-white p-6 rounded-lg text-center">
+              <div className="bg-red-600 text-white p-6 rounded-lg text-center">
                 <h2 className="text-3xl">Total Herbs</h2>
                 <p className="text-4xl font-bold">{herbCount}</p>
+              </div>
+              <div className="col-span-1 sm:col-span-2 md:col-span-3">
+                <Bar data={comparisonChartData} />
               </div>
             </section>
           )}
@@ -249,13 +313,124 @@ const AdminPanel = () => {
           {activeSection === "add-herb" && (
             <section className="bg-white shadow p-6 rounded-lg">
               <h2 className="text-3xl mb-4">Add New Herb</h2>
-              <form onSubmit={handleHerbSubmit}>
+              <form
+                onSubmit={handleHerbSubmit}
+                className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                <input
+                  type="text"
+                  placeholder="Image Source"
+                  value={newHerb.imageSrc}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, imageSrc: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Multimedia 1"
+                  value={newHerb.multimedia1}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, multimedia1: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Multimedia 2"
+                  value={newHerb.multimedia2}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, multimedia2: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Multimedia 3"
+                  value={newHerb.multimedia3}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, multimedia3: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Multimedia 4"
+                  value={newHerb.multimedia4}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, multimedia4: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
                 <input
                   type="text"
                   placeholder="Name"
                   value={newHerb.name}
                   onChange={(e) =>
                     setNewHerb({ ...newHerb, name: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Region"
+                  value={newHerb.region}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, region: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Type"
+                  value={newHerb.type}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, type: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Habitat"
+                  value={newHerb.habitat}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, habitat: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Botanical Name"
+                  value={newHerb.botanicalName}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, botanicalName: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Common Names"
+                  value={newHerb.commonNames}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, commonNames: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Medicinal Uses"
+                  value={newHerb.meduses}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, meduses: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Methods of Cultivation"
+                  value={newHerb.methofcul}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, methofcul: e.target.value })
                   }
                   className="p-2 border rounded w-full mb-4"
                 />
@@ -267,9 +442,51 @@ const AdminPanel = () => {
                   }
                   className="p-2 border rounded w-full mb-4"
                 />
+                <input
+                  type="text"
+                  placeholder="Sketchfab Model URL"
+                  value={newHerb.sketchfabModelUrl}
+                  onChange={(e) =>
+                    setNewHerb({
+                      ...newHerb,
+                      sketchfabModelUrl: e.target.value,
+                    })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Audio Source"
+                  value={newHerb.audioSrc}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, audioSrc: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Methods of Cultivation"
+                  value={newHerb.methodsOfCultivation}
+                  onChange={(e) =>
+                    setNewHerb({
+                      ...newHerb,
+                      methodsOfCultivation: e.target.value,
+                    })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Medicinal Uses"
+                  value={newHerb.medicinalUses}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, medicinalUses: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
                 <button
                   type="submit"
-                  className="bg-green-600 text-white px-6 py-2 rounded"
+                  className="bg-green-600 text-white px-6 py-2 rounded col-span-1 md:col-span-2"
                 >
                   {isSubmitting ? "Adding..." : "Add Herb"}
                 </button>
