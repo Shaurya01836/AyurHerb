@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { firestore } from "../services/firebase";
-import {
-  collection,
-  addDoc,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
 import Navbar from "./Navbar";
-import { fetchHerbs } from "../services/api"; // Import the fetchHerbs function
-import { Bar } from "react-chartjs-2"; // Import Bar chart from react-chartjs-2
+import { fetchHerbs, createHerb, deleteHerb } from "../services/api"; // Import the fetchHerbs, createHerb, and deleteHerb functions
+import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -22,16 +11,11 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { onSnapshot, collection, doc, deleteDoc } from "firebase/firestore"; // Import onSnapshot, collection, doc, deleteDoc from firebase/firestore
+import { firestore } from "../services/firebase"; // Import firestore from your Firebase configuration file
 
 // Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AdminPanel = () => {
   const [newHerb, setNewHerb] = useState({
@@ -44,15 +28,13 @@ const AdminPanel = () => {
     region: "",
     type: "",
     habitat: "",
-    botanicalName: "",
-    commonNames: "",
-    meduses: "",
-    methofcul: "",
     description: "",
     sketchfabModelUrl: "",
     audioSrc: "",
-    methodsOfCultivation: "",
+    botanicalName: "",
+    commonNames: "",
     medicinalUses: "",
+    methodsOfCultivation: "",
   });
 
   const [communityPosts, setCommunityPosts] = useState([]);
@@ -151,10 +133,7 @@ const AdminPanel = () => {
 
     setIsSubmitting(true);
     try {
-      await addDoc(collection(firestore, "herbs"), {
-        ...newHerb,
-        createdAt: new Date().toISOString(),
-      });
+      await createHerb(newHerb);
       alert("Herb added successfully!");
       resetHerbForm();
     } catch (error) {
@@ -176,15 +155,13 @@ const AdminPanel = () => {
       region: "",
       type: "",
       habitat: "",
-      botanicalName: "",
-      commonNames: "",
-      meduses: "",
-      methofcul: "",
       description: "",
       sketchfabModelUrl: "",
       audioSrc: "",
-      methodsOfCultivation: "",
+      botanicalName: "",
+      commonNames: "",
       medicinalUses: "",
+      methodsOfCultivation: "",
     });
   };
 
@@ -197,6 +174,19 @@ const AdminPanel = () => {
     } catch (error) {
       console.error("Error deleting post:", error);
       alert("Failed to delete post.");
+    }
+  };
+
+  const handleDeleteHerb = async (herbId) => {
+    if (!window.confirm("Are you sure you want to delete this herb?")) return;
+
+    try {
+      await deleteHerb(herbId);
+      alert("Herb deleted successfully!");
+      setHerbs(herbs.filter((herb) => herb._id !== herbId)); // Update the herbs state
+    } catch (error) {
+      console.error("Error deleting herb:", error);
+      alert("Failed to delete herb.");
     }
   };
 
@@ -389,48 +379,11 @@ const AdminPanel = () => {
                   }
                   className="p-2 border rounded w-full mb-4"
                 />
-                <input
-                  type="text"
+                <textarea
                   placeholder="Habitat"
                   value={newHerb.habitat}
                   onChange={(e) =>
                     setNewHerb({ ...newHerb, habitat: e.target.value })
-                  }
-                  className="p-2 border rounded w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Botanical Name"
-                  value={newHerb.botanicalName}
-                  onChange={(e) =>
-                    setNewHerb({ ...newHerb, botanicalName: e.target.value })
-                  }
-                  className="p-2 border rounded w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Common Names"
-                  value={newHerb.commonNames}
-                  onChange={(e) =>
-                    setNewHerb({ ...newHerb, commonNames: e.target.value })
-                  }
-                  className="p-2 border rounded w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Medicinal Uses"
-                  value={newHerb.meduses}
-                  onChange={(e) =>
-                    setNewHerb({ ...newHerb, meduses: e.target.value })
-                  }
-                  className="p-2 border rounded w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Methods of Cultivation"
-                  value={newHerb.methofcul}
-                  onChange={(e) =>
-                    setNewHerb({ ...newHerb, methofcul: e.target.value })
                   }
                   className="p-2 border rounded w-full mb-4"
                 />
@@ -465,6 +418,30 @@ const AdminPanel = () => {
                 />
                 <input
                   type="text"
+                  placeholder="Botanical Name"
+                  value={newHerb.botanicalName}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, botanicalName: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <textarea
+                  placeholder="Common Names"
+                  value={newHerb.commonNames}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, commonNames: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <textarea
+                  placeholder="Medicinal Uses"
+                  value={newHerb.medicinalUses}
+                  onChange={(e) =>
+                    setNewHerb({ ...newHerb, medicinalUses: e.target.value })
+                  }
+                  className="p-2 border rounded w-full mb-4"
+                />
+                <textarea
                   placeholder="Methods of Cultivation"
                   value={newHerb.methodsOfCultivation}
                   onChange={(e) =>
@@ -472,15 +449,6 @@ const AdminPanel = () => {
                       ...newHerb,
                       methodsOfCultivation: e.target.value,
                     })
-                  }
-                  className="p-2 border rounded w-full mb-4"
-                />
-                <input
-                  type="text"
-                  placeholder="Medicinal Uses"
-                  value={newHerb.medicinalUses}
-                  onChange={(e) =>
-                    setNewHerb({ ...newHerb, medicinalUses: e.target.value })
                   }
                   className="p-2 border rounded w-full mb-4"
                 />
@@ -519,6 +487,12 @@ const AdminPanel = () => {
                       >
                         View 3D Model
                       </a>
+                      <button
+                        onClick={() => handleDeleteHerb(herb._id)}
+                        className="bg-red-600 text-white px-4 py-2 rounded mt-2"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}
