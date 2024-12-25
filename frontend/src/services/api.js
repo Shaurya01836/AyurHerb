@@ -2,6 +2,7 @@ import axios from 'axios';
 const headers = {
   EnvironmentID: import.meta.env.VITE_ENVIRONMENT_ID,
   ProjectID: import.meta.env.VITE_PROJECT_ID,
+  "Content-Type": "application/json",
 };
 
 
@@ -28,11 +29,15 @@ export const fetchHerbs = async (limit = 13, offset = 0) => {
 // Create a new herb
 export const createHerb = async (herbData) => {
   try {
-    const response = await axios.post(`${BASE_URL}/herbs`, herbData, { headers });
-    return response.data;
+    const response = await axios.post(
+      BASE_URL,         
+      herbData,         
+      { headers }    
+    );
+    return response.data;  
   } catch (error) {
-    console.error('Error creating herb:', error.message);
-    throw new Error('Failed to create herb');
+    console.error('Error creating herb:', error.message);  
+    throw new Error('Failed to create herb');  
   }
 };
 
@@ -50,10 +55,12 @@ export const updateHerb = async (id, herbData) => {
 // Delete an herb
 export const deleteHerb = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}/herbs/${id}`, { headers });
-    return response.data;
+    // Making the DELETE request to the API with the ID in the URL and the necessary headers
+    const response = await axios.delete(`${BASE_URL}/${id}`, { headers });
+    return response.data;  // Return the response data
   } catch (error) {
-    console.error('Error deleting herb:', error.message);
-    throw new Error('Failed to delete herb');
+    console.error('Error deleting herb:', error.message);  // Log error if any
+    console.error('Error details:', error.response ? error.response.data : error); // Log detailed error response
+    throw new Error('Failed to delete herb');  // Throw a custom error
   }
 };
