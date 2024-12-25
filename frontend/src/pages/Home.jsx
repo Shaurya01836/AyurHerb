@@ -78,11 +78,10 @@ const Home = () => {
     doc.save("notes.pdf");
   };
   const handleShare = () => {
-    if (selectedPlant) {
-      const shareUrl = `${window.location.origin}/plant/${selectedPlant._id}`;
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        alert("Link copied to clipboard!");
-      });
+    if (selectedPlant && selectedPlant.sketchfabModelUrl) {
+      navigator.clipboard.writeText(selectedPlant.sketchfabModelUrl).then(() => {
+        alert("Sketchfab model link copied to clipboard!");
+  });
     }
   };
   const openPopup = (plant) => {
