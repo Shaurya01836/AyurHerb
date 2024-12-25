@@ -9,6 +9,7 @@ import Footer from "../components/Footer";
 import QuizPopup from "../components/QuizPopup";
 import {getVisitCount} from '../services/firebase';
 // import Slider from "react-slick";
+import { jsPDF } from "jspdf";
 
 const Home = () => {
   const [notes, setNotes] = useState(""); // State for notes
@@ -67,19 +68,22 @@ const Home = () => {
     };
 
     // Function to download notes as a text file
-    const handleDownloadNotes = () => {
-      const element = document.createElement("a");
-      const file = new Blob([notes], { type: "text/plain" });
-      element.href = URL.createObjectURL(file);
-      element.download = "notes.txt";
-      document.body.appendChild(element); // Required for this to work in FireFox
-      element.click();
-    };
-
     getPlants(); // Call the async function
   }, []);
-
+  
   // Function to open popup
+  const handleDownloadNotes = () => {
+    const doc = new jsPDF();
+    doc.text(notes, 10, 10);
+    doc.save("notes.pdf");
+  };
+  const handleShare = () => {
+    if (selectedPlant && selectedPlant.sketchfabModelUrl) {
+      navigator.clipboard.writeText(selectedPlant.sketchfabModelUrl).then(() => {
+        alert("Sketchfab model link copied to clipboard!");
+  });
+    }
+  };
   const openPopup = (plant) => {
     // Extract multimedia fields and store them in an array
     const multimedia = [
@@ -540,11 +544,11 @@ const Home = () => {
 
                   {/* Buttons for actions */}
                   <div className="flex items-center mt-4">
-                    <button className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
+                    <button onClick={handleDownloadNotes} className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
                       <i className="fa-solid fa-download mr-2"></i>
                       Download
                     </button>
-                    <button className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
+                    <button onClick={handleShare} className="text-sm px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200 mr-2">
                       <i className="fa-solid fa-share mr-2"></i>
                       Share
                     </button>
