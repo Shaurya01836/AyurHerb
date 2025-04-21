@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Modal from './Modal';
-import Navbar from './Navbar';
+import Modal from '../components/Modal';
+import Navbar from '../components/Navbar';
 
 const categories = [
     { name: 'Skin Care', imageUrl: '/images/skincare.png', plants: ['Aloe Vera', 'Neem', 'Turmeric', 'Tulsi'] },
