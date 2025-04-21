@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
 import { fetchHerbs, createHerb, deleteHerb } from "../services/api"; // Import the fetchHerbs, createHerb, and deleteHerb functions
 import { Bar } from "react-chartjs-2";
 import {

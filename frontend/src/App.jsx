@@ -10,7 +10,7 @@ import GardeningTips from "./components/GardeningTips"; // Import the Gardening 
 import Home from "./pages/Home";
 import CommunityForum from "./components/Community";
 import MyHerbs from "./components/MyHerbs";
-import AdminPanel from "./components/AdminPanel";
+import AdminPanel from "./pages/AdminPanel";
 
 const App = () => {
   return (
