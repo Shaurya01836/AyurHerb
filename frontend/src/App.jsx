@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HealthWellness from "./components/HealthWellness";
 import Login from "./components/Login";
 import Register from "./components/Register";
-import Dashboard from "./components/Dashboard";
+import Dashboard from "./pages/Dashboard";
 import PrivateRoute from "./components/PrivateRoute"; // Component for protected routes
 import "./styles/global.css";
-import GardeningTips from "./components/GardeningTips"; // Import the Gardening Tips component
+import GardeningTips from "./pages/GardeningTips"; // Import the Gardening Tips component
 import Home from "./pages/Home";
-import CommunityForum from "./components/Community";
-import MyHerbs from "./components/MyHerbs";
+import CommunityForum from "./pages/Community";
+import MyHerbs from "./pages/MyHerbs";
 import AdminPanel from "./pages/AdminPanel";
 
 const App = () => {

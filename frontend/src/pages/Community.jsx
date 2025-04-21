@@ -12,7 +12,7 @@ import {
   doc,
 } from "firebase/firestore";
 import { FiThumbsUp, FiThumbsDown } from "react-icons/fi";
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
 
 const CommunityForum = () => {
   const [user, setUser] = useState(null);

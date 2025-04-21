@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PlantCard from "../components/PlantCard";
-import Navbar from "./Navbar";
+import Navbar from "../components/Navbar";
 
 const MyHerbs = () => {
   const [bookmarkedPlants, setBookmarkedPlants] = useState([]);
