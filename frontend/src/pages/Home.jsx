@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { fetchHerbs } from "../services/api";
 import { incrementVisitCount, getVisitCount } from "../services/firebase";
 import { jsPDF } from "jspdf";
-
-// External Components
 import FirstPage from "../components/FirstPage";
 import AyushCards from "../components/AyushCards";
 import Footer from "../components/Footer";
@@ -134,7 +132,14 @@ const Home = () => {
       plant.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <div>Loading...</div>;
+ if (loading) {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500 border-solid"></div>
+    </div>
+  );
+}
+
   if (error) return <div>{error}</div>;
 
   return (

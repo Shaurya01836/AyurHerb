@@ -11,18 +11,20 @@ import Home from "./pages/Home";
 import CommunityForum from "./pages/Community";
 import MyHerbs from "./pages/MyHerbs";
 import AdminPanel from "./pages/AdminPanel";
+import DiseaseRecommendation from "./components/DiseaseRecommendation";
 
 const App = () => {
   return (
     <Router>
       <div>
-        {/* Define your routes */}
+  
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} /> {/* About Page */}
           <Route path="/health-wellness" element={<HealthWellness />} />
           <Route path="/gardening-tips" element={<GardeningTips />} />
           <Route path="/myherbs" element={<MyHerbs />} />
+          <Route path="/disease" element={<DiseaseRecommendation />} />
           {/* Authentication routes */}
           <Route path="/login" element={<Login />} /> {/* Login Page */}
           <Route path="/register" element={<Register />} />{" "}
