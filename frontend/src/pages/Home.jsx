@@ -12,6 +12,9 @@ import PlantCardsSection from "../components/PlantCardsSection";
 import PlantPopup from "../components/PlantPopup";
 import ChatbotButton from "../components/BotpressChatbot";
 
+
+const itemsPerPage = 8;
+
 const Home = () => {
   const [notes, setNotes] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,8 +30,18 @@ const Home = () => {
   const [showChatbot, setShowChatbot] = useState(false);
   const [bookmarkedPlants, setBookmarkedPlants] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const plantCardsRef = useRef(null);
+
+  const filteredPlants = plants.filter(
+    (plant) =>
+      (filterRegion === "All Regions" || plant.region === filterRegion) &&
+      (filterType === "All Types" || plant.type === filterType) &&
+      plant.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredPlants.length / itemsPerPage);
 
   useEffect(() => {
     const fetchVisitCountFunc = async () => {
@@ -68,6 +81,13 @@ const Home = () => {
     getPlants();
   }, []);
 
+  // ⬇️ Auto scroll to plant cards when search or filter changes
+  useEffect(() => {
+    if (searchTerm || filterRegion !== "All Regions" || filterType !== "All Types") {
+      scrollToPlantCards();
+    }
+  }, [searchTerm, filterRegion, filterType]);
+
   const handleDownloadNotes = () => {
     const doc = new jsPDF();
     doc.text(notes, 10, 10);
@@ -76,9 +96,11 @@ const Home = () => {
 
   const handleShare = () => {
     if (selectedPlant?.sketchfabModelUrl) {
-      navigator.clipboard.writeText(selectedPlant.sketchfabModelUrl).then(() => {
-        alert("Sketchfab model link copied to clipboard!");
-      });
+      navigator.clipboard
+        .writeText(selectedPlant.sketchfabModelUrl)
+        .then(() => {
+          alert("Sketchfab model link copied to clipboard!");
+        });
     }
   };
 
@@ -114,7 +136,10 @@ const Home = () => {
       } else {
         updatedBookmarks = [...prev, plant];
       }
-      localStorage.setItem("bookmarkedPlants", JSON.stringify(updatedBookmarks));
+      localStorage.setItem(
+        "bookmarkedPlants",
+        JSON.stringify(updatedBookmarks)
+      );
       return updatedBookmarks;
     });
   };
@@ -125,20 +150,13 @@ const Home = () => {
     }
   };
 
-  const filteredPlants = plants.filter(
-    (plant) =>
-      (filterRegion === "All Regions" || plant.region === filterRegion) &&
-      (filterType === "All Types" || plant.type === filterType) &&
-      plant.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
- if (loading) {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-white">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500 border-solid"></div>
-    </div>
-  );
-}
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-500 border-solid"></div>
+      </div>
+    );
+  }
 
   if (error) return <div>{error}</div>;
 
@@ -167,13 +185,77 @@ const Home = () => {
 
       <ChatbotButton showChatbot={showChatbot} toggleChatbot={toggleChatbot} />
 
-      <div ref={plantCardsRef} className="min-h-screen px-8 py-10">
+      <div
+        ref={plantCardsRef}
+        className="min-h-screen px-4 sm:px-6 py-6"
+      >
         <PlantCardsSection
           plants={filteredPlants}
           onLearnMore={openPopup}
           onBookmark={handleBookmark}
           bookmarkedPlants={bookmarkedPlants}
+          currentPage={currentPage}
+          itemsPerPage={itemsPerPage}
         />
+      </div>
+      <div className="flex justify-center mt-6 space-x-2">
+        <button
+          onClick={() => setCurrentPage(1)}
+          disabled={currentPage === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          First
+        </button>
+
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Prev
+        </button>
+
+        {[...Array(totalPages)].map((_, index) => {
+          const page = index + 1;
+          if (
+            page === 1 ||
+            page === totalPages ||
+            (page >= currentPage - 1 && page <= currentPage + 1)
+          ) {
+            return (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`px-3 py-1 border rounded ${
+                  page === currentPage ? "bg-green-500 text-white" : ""
+                }`}
+              >
+                {page}
+              </button>
+            );
+          } else if (page === currentPage - 2 || page === currentPage + 2) {
+            return <span key={page}>...</span>;
+          }
+          return null;
+        })}
+
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Next
+        </button>
+
+        <button
+          onClick={() => setCurrentPage(totalPages)}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
+          Last
+        </button>
       </div>
 
       <PlantPopup
