@@ -6,7 +6,7 @@ const HealthWellness = () => {
   return (
     <>
       <Navbar />
-      <div className="pt-36 pb-20 px-4 min-h-screen bg-gradient-to-b from-green-100 to-white text-center">
+      <div className="pt-36 pb-20 px-4 min-h-screen bg-gradient-to-b from-white to-green-100 text-center">
         <h2 className="text-4xl sm:text-5xl font-extrabold mb-4 text-green-700">
           Herbal Disease & Symptom Checker 🌿
         </h2>
@@ -17,6 +17,7 @@ const HealthWellness = () => {
         <DiseaseRecommendation />
         {/* <UploadHerbalData /> */}
       </div>
+      
     </>
   );
 };
