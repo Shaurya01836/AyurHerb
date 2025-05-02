@@ -15,12 +15,15 @@ function DiseaseRecommendation() {
   const [suggestions, setSuggestions] = useState([]);
   const [allDiseases, setAllDiseases] = useState([]);
 
-
   useEffect(() => {
     const fetchDiseases = async () => {
       try {
-        const snapshot = await getDocs(collection(firestore, "herbalRecommendations"));
-        const diseases = snapshot.docs.map(doc => doc.data().disease?.toLowerCase()).filter(Boolean);
+        const snapshot = await getDocs(
+          collection(firestore, "herbalRecommendations")
+        );
+        const diseases = snapshot.docs
+          .map((doc) => doc.data().disease?.toLowerCase())
+          .filter(Boolean);
         setAllDiseases(diseases);
       } catch (err) {
         console.error("Error fetching diseases:", err);
@@ -71,7 +74,9 @@ function DiseaseRecommendation() {
           console.warn("No valid recommendations array found");
         }
       } else {
-        alert("No recommendations found for that disease.");
+        alert(
+          "Sorry, we don't have specific recommendations for this condition at the moment. Please check the spelling or try another condition. For personalized advice, it's always best to consult a healthcare professional."
+        );
       }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
@@ -80,7 +85,7 @@ function DiseaseRecommendation() {
 
     setLoading(false);
   };
-  
+
   return (
     <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-2xl mx-auto transition-all">
       <h2 className="text-3xl font-bold text-green-800 mb-6 text-center">
