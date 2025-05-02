@@ -1,6 +1,6 @@
-import React from 'react';
-import Navbar from '../components/Navbar';
-import DiseaseRecommendation from '../components/DiseaseRecommendation';
+import React from "react";
+import Navbar from "../components/Navbar";
+import DiseaseRecommendation from "../components/DiseaseRecommendation";
 
 const HealthWellness = () => {
   return (
@@ -11,9 +11,11 @@ const HealthWellness = () => {
           Herbal Disease & Symptom Checker 🌿
         </h2>
         <p className="text-lg text-gray-700 max-w-2xl mx-auto mb-10">
-          Enter your symptoms or the name of a disease to get natural herbal remedies based on traditional wisdom and Ayurvedic knowledge.
+          Enter your symptoms or the name of a disease to get natural herbal
+          remedies based on traditional wisdom and Ayurvedic knowledge.
         </p>
         <DiseaseRecommendation />
+        {/* <UploadHerbalData /> */}
       </div>
     </>
   );

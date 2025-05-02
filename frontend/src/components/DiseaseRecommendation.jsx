@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Loader2, Leaf } from "lucide-react"; 
+import { Loader2, Leaf } from "lucide-react";
+import {
+  collection,
+  query as firestoreQuery,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { firestore } from "../services/firebase";
 
 function DiseaseRecommendation() {
   const [query, setQuery] = useState("");
@@ -10,26 +17,31 @@ function DiseaseRecommendation() {
     e.preventDefault();
     setLoading(true);
     setRecommendations([]);
+    try {
+      const q = firestoreQuery(
+        collection(firestore, "herbalRecommendations"),
+        where("disease", "==", query.toLowerCase())
+      );
+      const querySnapshot = await getDocs(q);
 
-    setTimeout(() => {
-      const dummyResults = [
-        {
-          herb: "Tulsi",
-          usedFor: "Cough, cold, and respiratory relief",
-          preparation: "Boil leaves in water and drink as tea",
-          dosage: "Twice a day after meals",
-          caution: "Avoid during pregnancy in high doses",
-        },
-        {
-          herb: "Ginger",
-          usedFor: "Sore throat and inflammation",
-          preparation: "Grate and boil in water with honey",
-          dosage: "1 cup daily",
-        },
-      ];
-      setRecommendations(dummyResults);
-      setLoading(false);
-    }, 1500);
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+
+        if (data.recommendations && Array.isArray(data.recommendations)) {
+          setRecommendations(data.recommendations);
+        } else {
+          console.warn("No valid recommendations array found");
+        }
+      } else {
+        alert("No recommendations found for that disease.");
+      }
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      alert("Something went wrong. Please try again.");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -40,7 +52,7 @@ function DiseaseRecommendation() {
       <form onSubmit={handleSubmit}>
         <textarea
           className="w-full h-32 border-2 border-green-300 rounded-xl p-4 focus:outline-none focus:ring-4 focus:ring-green-400/50 resize-none transition"
-          placeholder="Describe your symptoms or name a disease (e.g. cold, cough, fever)..."
+          placeholder="Describe your symptoms or name a disease (e.g. cold, cough, fever,headache,insomnia,skin irritation)..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           required
@@ -71,11 +83,17 @@ function DiseaseRecommendation() {
             >
               <p className="text-lg font-semibold text-green-800 flex items-center mb-2">
                 <Leaf className="w-5 h-5 mr-2" />
-                <span>{item.herb}</span>
+                <span>{item.herb || "Unnamed Herb"}</span>
               </p>
-              <p><strong>Used For:</strong> {item.usedFor}</p>
-              <p><strong>Preparation:</strong> {item.preparation}</p>
-              <p><strong>Dosage:</strong> {item.dosage}</p>
+              <p>
+                <strong>Used For:</strong> {item.usedFor || "N/A"}
+              </p>
+              <p>
+                <strong>Preparation:</strong> {item.preparation || "N/A"}
+              </p>
+              <p>
+                <strong>Dosage:</strong> {item.dosage || "N/A"}
+              </p>
               {item.caution && (
                 <p className="text-red-600 mt-1">
                   <strong>Caution:</strong> {item.caution}
