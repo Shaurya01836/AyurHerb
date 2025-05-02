@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@amplitude/analytics-browser": "^2.11.9",
+    "@botpress/webchat": "2.3",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@google-cloud/bigquery": "^7.9.1",
     "aframe": "^1.6.0",

@@ -10,7 +10,7 @@ import HomeNavbar from "../components/HomeNavbar";
 import FilterPanel from "../components/FilterPanel";
 import PlantCardsSection from "../components/PlantCardsSection";
 import PlantPopup from "../components/PlantPopup";
-import ChatbotButton from "../components/ChatbotButton";
+import ChatbotButton from "../components/BotpressChatbot";
 
 const Home = () => {
   const [notes, setNotes] = useState("");
