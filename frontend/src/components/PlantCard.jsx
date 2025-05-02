@@ -17,8 +17,8 @@ const PlantCard = ({
     <img
       src={imageSrc || "placeholder-image-url.jpg"}
       alt={name || "Plant"}
-      className="w-full h-52 object-cover p-2 rounded-xl" 
-    />
+      className="w-full h-40 sm:h-44 md:h-48 object-cover p-2 rounded-xl"
+      />
   <div className="p-4 pt-2 bg-sec-color text-center">
   <h3 className="text-lg font-semibold text-gray-800 text-left">
         {name}
