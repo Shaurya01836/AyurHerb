@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Loader2, Leaf } from "lucide-react";
+import { Loader2, Leaf, Search, TrendingUp, AlertTriangle, CheckCircle } from "lucide-react";
 import {
   collection,
   query as firestoreQuery,
@@ -87,43 +87,66 @@ function DiseaseRecommendation() {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-md p-8 rounded-3xl shadow-2xl max-w-2xl mx-auto transition-all">
-      <h2 className="text-3xl font-bold text-green-800 mb-6 text-center">
-        🌱 Get Herbal Treatment Suggestions
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <textarea
-          className="w-full h-32 border-2 border-green-300 rounded-xl p-4 focus:outline-none focus:ring-4 focus:ring-green-400/50 resize-none transition"
-          placeholder="Describe your symptoms or name a disease (e.g. cold, cough, fever...)"
-          value={query}
-          onChange={handleChange}
-          required
-        />
+    <div className="w-full">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-medium mb-4">
+          <Search className="w-4 h-4" />
+          <span>AI-Powered Diagnosis</span>
+        </div>
+        <h2 className="text-3xl font-bold text-gray-800 mb-3">
+          Find Your Natural Remedy
+        </h2>
+        <p className="text-gray-600 max-w-2xl mx-auto">
+          Describe your symptoms or search for a specific condition to discover 
+          traditional herbal treatments and natural remedies.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="mb-8">
+        <div className="relative mb-6">
+          <textarea
+            className="w-full h-32 border-2 border-gray-200 rounded-2xl p-6 focus:outline-none focus:ring-4 focus:ring-green-400/30 focus:border-green-400 resize-none transition-all duration-300 text-lg"
+            placeholder="Describe your symptoms or name a disease (e.g. cold, cough, fever, headache, insomnia...)"
+            value={query}
+            onChange={handleChange}
+            required
+          />
+          <div className="absolute top-4 right-4 text-gray-400">
+            <Search className="w-5 h-5" />
+          </div>
+        </div>
+
         {suggestions.length > 0 && (
-          <ul className="bg-white border border-green-200 rounded-xl mt-2 shadow-lg overflow-hidden max-h-48 overflow-y-auto transition-all duration-200">
-            {suggestions.map((item, index) => (
-              <li
-                key={index}
-                onClick={() => handleSuggestionClick(item)}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-green-100 cursor-pointer transition-colors duration-150 text-green-700 font-medium"
-              >
-                <Leaf className="w-4 h-4 text-green-500" />
-                <span>{item.charAt(0).toUpperCase() + item.slice(1)}</span>
-              </li>
-            ))}
-          </ul>
+          <div className="mb-6">
+            <ul className="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+              {suggestions.map((item, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleSuggestionClick(item)}
+                  className="flex items-center gap-3 px-6 py-4 hover:bg-green-50 cursor-pointer transition-colors duration-200 text-gray-700 font-medium border-b border-gray-100 last:border-b-0"
+                >
+                  <Leaf className="w-4 h-4 text-green-500 flex-shrink-0" />
+                  <span className="capitalize">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
-        <div className="mt-8">
-          <h4 className="text-lg font-semibold text-green-700 mb-3">
-            Trending Conditions:
-          </h4>
+
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-5 h-5 text-green-600" />
+            <h4 className="text-lg font-semibold text-gray-800">
+              Popular Conditions:
+            </h4>
+          </div>
           <div className="flex flex-wrap gap-3 justify-center">
-            {["Cold", "Cough", "Fever", "Insomnia", "Acidity"].map(
+            {["Cold", "Cough", "Fever", "Insomnia", "Acidity", "Headache", "Stress", "Digestion"].map(
               (condition) => (
                 <button
                   key={condition}
                   onClick={() => handleSuggestionClick(condition)}
-                  className="bg-green-200 hover:bg-green-300 text-green-800 py-2 px-4 rounded-full transition font-medium"
+                  className="bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 text-green-700 py-3 px-6 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md"
                 >
                   {condition}
                 </button>
@@ -134,48 +157,100 @@ function DiseaseRecommendation() {
 
         <button
           type="submit"
-          className="w-full bg-green-600 hover:bg-green-700 transition text-white py-3 px-6 rounded-full mt-5 font-semibold text-lg"
+          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-white py-4 px-8 rounded-2xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
         >
-          Get Recommendations
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="w-5 h-5 animate-spin" />
+              <span>Analyzing...</span>
+            </div>
+          ) : (
+            "Get Herbal Recommendations"
+          )}
         </button>
       </form>
 
-      {loading && (
-        <div className="flex justify-center items-center mt-6 text-green-600">
-          <Loader2 className="animate-spin mr-2" /> Fetching recommendations...
-        </div>
-      )}
-
       {recommendations.length > 0 && (
-        <div className="mt-8 space-y-6">
-          <h3 className="text-2xl font-semibold text-green-700 text-left">
-            🍃 Recommendations:
-          </h3>
-          {recommendations.map((item, i) => (
-            <div
-              key={i}
-              className="p-5 bg-green-50 rounded-xl shadow-md transition hover:shadow-lg"
-            >
-              <p className="text-lg font-semibold text-green-800 flex items-center mb-2">
-                <Leaf className="w-5 h-5 mr-2" />
-                <span>{item.herb || "Unnamed Herb"}</span>
-              </p>
-              <p>
-                <strong>Used For:</strong> {item.usedFor || "N/A"}
-              </p>
-              <p>
-                <strong>Preparation:</strong> {item.preparation || "N/A"}
-              </p>
-              <p>
-                <strong>Dosage:</strong> {item.dosage || "N/A"}
-              </p>
-              {item.caution && (
-                <p className="text-red-600 mt-1">
-                  <strong>Caution:</strong> {item.caution}
-                </p>
-              )}
+        <div className="space-y-6">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-3">
+              <CheckCircle className="w-4 h-4" />
+              <span>Found {recommendations.length} Recommendation{recommendations.length > 1 ? 's' : ''}</span>
             </div>
-          ))}
+            <h3 className="text-2xl font-bold text-gray-800">
+              Natural Remedies for Your Condition
+            </h3>
+          </div>
+          
+          <div className="grid gap-6">
+            {recommendations.map((item, i) => (
+              <div
+                key={i}
+                className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300"
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <Leaf className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-xl font-bold text-gray-800 mb-1">
+                      {item.herb || "Unnamed Herb"}
+                    </h4>
+                    <p className="text-green-600 font-medium">
+                      Natural Remedy
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="bg-white/60 rounded-xl p-4">
+                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      Used For:
+                    </h5>
+                    <p className="text-gray-700">{item.usedFor || "N/A"}</p>
+                  </div>
+                  
+                  <div className="bg-white/60 rounded-xl p-4">
+                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                      Preparation:
+                    </h5>
+                    <p className="text-gray-700">{item.preparation || "N/A"}</p>
+                  </div>
+                  
+                  <div className="bg-white/60 rounded-xl p-4">
+                    <h5 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-teal-500 rounded-full"></span>
+                      Dosage:
+                    </h5>
+                    <p className="text-gray-700">{item.dosage || "N/A"}</p>
+                  </div>
+                  
+                  {item.caution && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                      <h5 className="font-semibold text-red-800 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4" />
+                        Important Caution:
+                      </h5>
+                      <p className="text-red-700">{item.caution}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <AlertTriangle className="w-5 h-5 text-blue-600" />
+              <span className="font-semibold text-blue-800">Medical Disclaimer</span>
+            </div>
+            <p className="text-blue-700 text-sm">
+              These recommendations are for informational purposes only. Always consult with a healthcare professional 
+              before starting any herbal treatment, especially if you have existing medical conditions or are taking medications.
+            </p>
+          </div>
         </div>
       )}
     </div>

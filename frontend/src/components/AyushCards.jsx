@@ -1,4 +1,5 @@
-import React from 'react';
+
+import { FaLeaf } from 'react-icons/fa';
 
 const WellnessOptions = () => {
   const offerings = [
@@ -45,13 +46,21 @@ const WellnessOptions = () => {
   ];
 
   return (
-    <div className="max-w-8xl mx-auto py-16 px-4 sm:px-6 lg:px-8 shadow-2xl">
-      <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-main-color mb-6">
-        Discover the Power of Natural Healing
-      </h2>
-      <p className="text-center text-md sm:text-lg text-gray-500 mb-8">
-        Explore a wide variety of time-honored practices designed to promote holistic wellness and rejuvenate your body and mind.
-      </p>
+    <div className="max-w-8xl mx-auto py-16 px-4 sm:px-6 lg:px-8 ">
+      <div className="text-center mb-16">
+        <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium mb-6">
+          <FaLeaf className="mr-2 text-green-600" />
+          Traditional Healing Systems
+        </div>
+        <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+          Discover the Power of
+          <span className="block text-green-600">Natural Healing</span>
+        </h2>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          Explore a wide variety of time-honored practices designed to promote holistic wellness 
+          and rejuvenate your body and mind through ancient wisdom.
+        </p>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
         {offerings.map((offering, index) => (
           <div key={index} className={`p-4 sm:p-6 ${offering.bgColor} rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300`}>

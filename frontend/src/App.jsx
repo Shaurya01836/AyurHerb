@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import HealthWellness from "./pages/HealthWellness";
 import Login from "./components/Login";
@@ -12,6 +11,8 @@ import CommunityForum from "./pages/Community";
 import MyHerbs from "./pages/MyHerbs";
 import AdminPanel from "./pages/AdminPanel";
 import DiseaseRecommendation from "./components/DiseaseRecommendation";
+import AllPlants from "./pages/AllPlants";
+import PlantDetail from "./pages/PlantDetail";
 
 const App = () => {
   return (
@@ -21,6 +22,8 @@ const App = () => {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Home />} /> {/* About Page */}
+          <Route path="/all-plants" element={<AllPlants />} />
+          <Route path="/plant/:id" element={<PlantDetail />} />
           <Route path="/health-wellness" element={<HealthWellness />} />
           <Route path="/gardening-tips" element={<GardeningTips />} />
           <Route path="/myherbs" element={<MyHerbs />} />

@@ -12,6 +12,7 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { firestore } from "../services/firebase";
+import { Shield, Users, FileText, Plus, Settings, BarChart3, Menu, X } from "lucide-react";
 
 import AdminSidebar from "../components/Admin.Module/AdminSidebar";
 import AdminStats from "../components/Admin.Module/AdminStats";
@@ -181,10 +182,37 @@ const AdminPanel = () => {
     }
   };
 
+  const getSectionTitle = () => {
+    const titles = {
+      stats: "Dashboard Overview",
+      users: "User Management",
+      posts: "Community Posts",
+      "add-herb": "Add New Herb",
+      "manage-herbs": "Manage Herbs"
+    };
+    return titles[activeSection] || "Admin Panel";
+  };
+
+  const getSectionIcon = () => {
+    const icons = {
+      stats: BarChart3,
+      users: Users,
+      posts: FileText,
+      "add-herb": Plus,
+      "manage-herbs": Settings
+    };
+    return icons[activeSection] || Shield;
+  };
+
+  const IconComponent = getSectionIcon();
+
   return (
     <>
       <Navbar />
-      <div className="flex">
+
+      {/* Main Content */}
+      <div className="flex bg-gradient-to-br from-green-50 via-white to-emerald-50 min-h-screen pt-20">
+        {/* Sidebar */}
         <AdminSidebar
           isOpen={isSidebarOpen}
           toggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -192,40 +220,82 @@ const AdminPanel = () => {
           setActive={setActiveSection}
         />
 
-        <div className="ml-64 flex-1 p-6 md:p-12 bg-gray-100 min-h-screen flex flex-col space-y-8 mt-16">
-          <h1 className="text-5xl font-extrabold text-center text-green-600">
-            Admin Panel
-          </h1>
+        {/* Main Content Area */}
+        <div className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}>
+          <div className="p-6 lg:p-8">
+            {/* Mobile Sidebar Toggle */}
+            <div className="lg:hidden mb-6">
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-200  transition-all duration-200"
+              >
+                {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                <span className="font-medium text-gray-700">Menu</span>
+              </button>
+            </div>
 
-          {activeSection === "stats" && (
-            <AdminStats
-              totalUsers={totalUsers}
-              visitCount={visitCount}
-              postCount={postCount}
-              herbCount={herbCount}
-            />
-          )}
+            {/* Section Header */}
+            <div className="bg-white/80 backdrop-blur-md rounded-3xl  border border-green-100 p-6 mb-8">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-gray-800">{getSectionTitle()}</h2>
+                  <p className="text-gray-600 mt-1">
+                    {activeSection === 'stats' && 'Monitor platform statistics and user activity'}
+                    {activeSection === 'users' && 'View and manage registered users'}
+                    {activeSection === 'posts' && 'Moderate community posts and discussions'}
+                    {activeSection === 'add-herb' && 'Add new herbs to the database'}
+                    {activeSection === 'manage-herbs' && 'Edit, update, or remove existing herbs'}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-          {activeSection === "users" && (
-            <UserList users={registeredUsers} />
-          )}
+            {/* Content Sections */}
+            <div className="space-y-8">
+              {activeSection === "stats" && (
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-green-100 p-8">
+                  <AdminStats
+                    totalUsers={totalUsers}
+                    visitCount={visitCount}
+                    postCount={postCount}
+                    herbCount={herbCount}
+                  />
+                </div>
+              )}
 
-          {activeSection === "posts" && (
-            <PostList posts={communityPosts} onDelete={handleDeletePost} />
-          )}
+              {activeSection === "users" && (
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-green-100 p-8">
+                  <UserList users={registeredUsers} />
+                </div>
+              )}
 
-          {activeSection === "add-herb" && (
-            <AddHerbForm
-              herb={newHerb}
-              setHerb={setNewHerb}
-              isSubmitting={isSubmitting}
-              onSubmit={handleHerbSubmit}
-            />
-          )}
+              {activeSection === "posts" && (
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-green-100 p-8">
+                  <PostList posts={communityPosts} onDelete={handleDeletePost} />
+                </div>
+              )}
 
-          {activeSection === "manage-herbs" && (
-            <ManageHerbs herbs={herbs} onDelete={handleDeleteHerb} />
-          )}
+              {activeSection === "add-herb" && (
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl  border border-green-100 p-8">
+                  <AddHerbForm
+                    herb={newHerb}
+                    setHerb={setNewHerb}
+                    isSubmitting={isSubmitting}
+                    onSubmit={handleHerbSubmit}
+                  />
+                </div>
+              )}
+
+              {activeSection === "manage-herbs" && (
+                <div className="bg-white/80 backdrop-blur-md rounded-3xl  border border-green-100 p-8">
+                  <ManageHerbs herbs={herbs} onDelete={handleDeleteHerb} />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

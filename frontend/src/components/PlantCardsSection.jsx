@@ -6,11 +6,10 @@ const PlantCardsSection = ({
   onLearnMore,
   onBookmark,
   bookmarkedPlants,
-  currentPage,
   itemsPerPage,
 }) => {
-  const startIdx = (currentPage - 1) * itemsPerPage;
-  const visiblePlants = plants.slice(startIdx, startIdx + itemsPerPage);
+  // Show all plants since we're not using pagination on home page
+  const visiblePlants = plants;
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 sm:px-8">
@@ -23,6 +22,8 @@ const PlantCardsSection = ({
           onLearnMore={() => onLearnMore(plant)}
           onBookmark={() => onBookmark(plant)}
           isBookmarked={bookmarkedPlants.some((p) => p._id === plant._id)}
+          plantId={plant._id}
+          sketchfabModelUrl={plant.sketchfabModelUrl}
         />
       ))}
     </div>
