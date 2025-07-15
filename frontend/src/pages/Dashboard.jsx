@@ -16,8 +16,9 @@ import {
 } from "react-icons/fa";
 import "react-toastify/dist/ReactToastify.css";
 import { firestore } from "../services/firebase";
-import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs, where } from "firebase/firestore";
 import axios from "axios";
+import { fetchUserProfile } from "../services/firebase";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,6 +30,9 @@ const Dashboard = () => {
   const [loadingNews, setLoadingNews] = useState(true);
   const [errorNews, setErrorNews] = useState(null);
   const [bookmarkedPlants, setBookmarkedPlants] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
+  const [userPostsCount, setUserPostsCount] = useState(0);
+  const [userCommentsCount, setUserCommentsCount] = useState(0);
 
   const apiKey = "58bc5f44b1b04122864e443678d1b781";
 
@@ -38,6 +42,25 @@ const Dashboard = () => {
       const email = currentUser.email.split("@")[0];
       setUserEmail(email);
       setUser(currentUser);
+      // Fetch user profile from Firestore
+      fetchUserProfile(currentUser.uid).then(setUserProfile);
+      // Fetch user posts count
+      const postsRef = collection(firestore, "posts");
+      const q = query(postsRef, where("userId", "==", currentUser.uid));
+      getDocs(q).then((snapshot) => {
+        setUserPostsCount(snapshot.size);
+        // Count comments made by user
+        let commentCount = 0;
+        snapshot.docs.forEach((doc) => {
+          const post = doc.data();
+          function countUserComments(comments) {
+            if (!comments) return 0;
+            return comments.reduce((acc, c) => acc + (c.userId === currentUser.uid ? 1 : 0) + countUserComments(c.replies), 0);
+          }
+          commentCount += countUserComments(post.comments);
+        });
+        setUserCommentsCount(commentCount);
+      });
     }
     fetchCommunityPosts();
     fetchNewsArticles();
@@ -292,6 +315,7 @@ const Dashboard = () => {
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{userEmail}</h2>
             <p className="text-gray-600">{user?.email}</p>
+            <p className="text-green-600 font-semibold text-lg mt-2">{userProfile ? `${userProfile.reputation || 0} pts` : "..."}</p>
             <p className="text-sm text-gray-500">Member since {user?.metadata?.creationTime ? new Date(user.metadata.creationTime).toLocaleDateString() : 'Recently'}</p>
           </div>
         </div>
@@ -304,11 +328,11 @@ const Dashboard = () => {
           <div className="text-gray-600">Bookmarked Herbs</div>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
-          <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
+          <div className="text-3xl font-bold text-blue-600 mb-2">{userPostsCount}</div>
           <div className="text-gray-600">Posts Created</div>
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center">
-          <div className="text-3xl font-bold text-purple-600 mb-2">0</div>
+          <div className="text-3xl font-bold text-purple-600 mb-2">{userCommentsCount}</div>
           <div className="text-gray-600">Comments Made</div>
         </div>
       </div>

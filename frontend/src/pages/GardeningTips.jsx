@@ -133,7 +133,7 @@ const GardeningTips = () => {
             <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
               Master the art of gardening with our comprehensive guide. From soil preparation to pest control, 
               discover proven techniques to make your garden flourish and grow beautiful, healthy plants.
-            </p>
+          </p>
             
             <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-2">
@@ -166,12 +166,12 @@ const GardeningTips = () => {
             <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300">
               <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
                 <Video className="w-6 h-6 text-emerald-600" />
-              </div>
+        </div>
               <h3 className="text-xl font-bold text-gray-800 mb-3">Video Tutorials</h3>
               <p className="text-gray-600 leading-relaxed">
                 Watch step-by-step video guides for visual learning and practical demonstrations.
               </p>
-            </div>
+        </div>
             
             <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300">
               <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mb-4">
@@ -186,7 +186,7 @@ const GardeningTips = () => {
 
           {/* Main Content */}
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Gardening Tips Section */}
+          {/* Gardening Tips Section */}
             <div className="lg:col-span-2">
               <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-green-100 p-8">
                 <div className="flex items-center gap-3 mb-8">
@@ -200,10 +200,10 @@ const GardeningTips = () => {
                   {gardeningTips.map((tip, index) => {
                     const IconComponent = tip.icon;
                     return (
-                      <div
-                        key={tip.id}
+              <div
+                key={tip.id}
                         className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300"
-                      >
+              >
                         <div className="flex items-start gap-4 mb-4">
                           <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center flex-shrink-0">
                             <IconComponent className="w-6 h-6 text-white" />
@@ -243,19 +243,19 @@ const GardeningTips = () => {
                         </div>
                         
                         <div className="mt-4">
-                          <img
-                            src={tip.image}
-                            alt={tip.title}
+                    <img
+                      src={tip.image}
+                      alt={tip.title}
                             className="w-full h-48 object-cover rounded-xl shadow-md"
-                          />
-                        </div>
-                      </div>
+                    />
+                  </div>
+                  </div>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Recommended Tools Section */}
+          {/* Recommended Tools Section */}
               <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl border border-green-100 p-8 mt-8">
                                  <div className="flex items-center gap-3 mb-8">
                    <div className="w-10 h-10 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -265,15 +265,15 @@ const GardeningTips = () => {
                 </div>
                 
                 <div className="grid sm:grid-cols-2 gap-6">
-                  {recommendedTools.map((tool, index) => (
-                    <div
-                      key={index}
+              {recommendedTools.map((tool, index) => (
+                <div
+                  key={index}
                       className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
-                    >
+                >
                       <div className="flex items-center gap-4 mb-4">
-                        <img
-                          src={tool.image}
-                          alt={tool.name}
+                  <img
+                    src={tool.image}
+                    alt={tool.name}
                           className="w-16 h-16 object-cover rounded-xl shadow-md"
                         />
                         <div className="flex-1">
@@ -284,7 +284,7 @@ const GardeningTips = () => {
                       </div>
                       <h3 className="text-lg font-bold text-gray-800 mb-2">{tool.name}</h3>
                       <p className="text-gray-600">{tool.description}</p>
-                    </div>
+                  </div>
                   ))}
                 </div>
               </div>
@@ -298,18 +298,18 @@ const GardeningTips = () => {
                     <Play className="w-5 h-5 text-white" />
                   </div>
                   <h2 className="text-2xl font-bold text-gray-800">Video Tutorials</h2>
-                </div>
-                
+        </div>
+
                 <div className="space-y-6">
                   {gardeningVideos.map((video, index) => (
                     <div key={index} className="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-4 shadow-lg border border-gray-100">
                       <div className="aspect-video mb-4">
-                        <iframe
+            <iframe
                           src={video.url}
                           title={video.title}
                           className="w-full h-full rounded-xl shadow-md"
                           frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                           allowFullScreen
                         />
                       </div>
