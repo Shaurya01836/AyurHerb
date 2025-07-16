@@ -15,14 +15,14 @@ const PlantCardsSection = ({
     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 sm:px-8">
       {visiblePlants.map((plant) => (
         <PlantCard
-          key={plant._id}
+          key={plant.id || plant._id}
           imageSrc={plant.imageSrc || "default-image-url"}
           name={plant.name || "Unknown Plant"}
           type={plant.type || "Unknown Type"}
           onLearnMore={() => onLearnMore(plant)}
           onBookmark={() => onBookmark(plant)}
-          isBookmarked={bookmarkedPlants.some((p) => p._id === plant._id)}
-          plantId={plant._id}
+          isBookmarked={bookmarkedPlants.some((p) => (p.id || p._id) === (plant.id || plant._id))}
+          plantId={plant.id || plant._id}
           sketchfabModelUrl={plant.sketchfabModelUrl}
         />
       ))}

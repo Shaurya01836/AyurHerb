@@ -18,8 +18,8 @@ const AllPlants = () => {
   useEffect(() => {
     const getPlants = async () => {
       try {
-        const response = await fetchHerbs();
-        setPlants(response.data);
+        const herbs = await fetchHerbs();
+        setPlants(Array.isArray(herbs) ? herbs : []);
       } catch (err) {
         console.error("Error fetching plants:", err);
         setError("Failed to fetch plants");
@@ -33,11 +33,11 @@ const AllPlants = () => {
   // Get unique types for filter dropdown
   const plantTypes = [
     "All",
-    ...Array.from(new Set(plants.map((plant) => plant.type).filter(Boolean)))
+    ...Array.from(new Set((plants || []).map((plant) => plant.type).filter(Boolean)))
   ];
 
   // Search and filter logic
-  const filteredPlants = plants.filter((plant) => {
+  const filteredPlants = (plants || []).filter((plant) => {
     const matchesSearch = plant.name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = filterType === "All" || plant.type === filterType;
     return matchesSearch && matchesType;

@@ -8,7 +8,6 @@ import {
   updateDoc,
   increment,
   getDoc,
-  addDoc,
   setDoc,
   getDocs,
   collection,
@@ -19,6 +18,7 @@ import {
   where,
   orderBy,
   limit,
+  deleteDoc, // <-- add this import
 } from "firebase/firestore"; // Import Firestore SDK
 import { v4 as uuidv4 } from "uuid";
 
@@ -55,7 +55,7 @@ export { app, auth, database, firestore };
 export default { app, auth, database, firestore };
 
 // Function to update user activity in Firestore
-export const updateUserActivity = async (uid) => {
+const updateUserActivity = async (uid) => {
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
   const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
 
@@ -73,7 +73,7 @@ export const updateUserActivity = async (uid) => {
 };
 
 // Function to increment the visit count
-export const incrementVisitCount = async () => {
+const incrementVisitCount = async () => {
   const visitRef = doc(firestore, "stats", "visitCount");
   await updateDoc(visitRef, {
     count: increment(1),
@@ -81,7 +81,7 @@ export const incrementVisitCount = async () => {
 };
 
 // Function to get the current visit count
-export const getVisitCount = async () => {
+const getVisitCount = async () => {
   const visitRef = doc(firestore, "stats", "visitCount");
   const visitDoc = await getDoc(visitRef);
   return visitDoc.exists() ? visitDoc.data().count : 0;
@@ -110,13 +110,13 @@ export const DEFAULT_CATEGORIES = [
 // --- Reputation/Points System ---
 
 // Helper to update user reputation
-export const updateUserReputation = async (uid, delta) => {
+const updateUserReputation = async (uid, delta) => {
   const userRef = doc(firestore, "users", uid);
   await updateDoc(userRef, { reputation: increment(delta) });
 };
 
 // --- Create a new community post ---
-export const createCommunityPost = async ({
+const createCommunityPost = async ({
   content,
   userId,
   userName,
@@ -174,7 +174,7 @@ export const createCommunityPost = async ({
 };
 
 // --- Upvote/Downvote a post ---
-export const voteOnPost = async (postId, userId, type = "upvote") => {
+const voteOnPost = async (postId, userId, type = "upvote") => {
   const postRef = doc(firestore, "posts", postId);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) throw new Error("Post not found");
@@ -232,7 +232,7 @@ export const voteOnPost = async (postId, userId, type = "upvote") => {
 };
 
 // --- Bookmark/Unbookmark a post ---
-export const toggleBookmarkPost = async (postId, userId) => {
+const toggleBookmarkPost = async (postId, userId) => {
   const postRef = doc(firestore, "posts", postId);
   const userRef = doc(firestore, "users", userId);
   const postSnap = await getDoc(postRef);
@@ -254,7 +254,7 @@ export const toggleBookmarkPost = async (postId, userId) => {
 };
 
 // --- Report a post ---
-export const reportPost = async (postId, userId) => {
+const reportPost = async (postId, userId) => {
   const postRef = doc(firestore, "posts", postId);
   await updateDoc(postRef, {
     reportedBy: arrayUnion(userId),
@@ -262,7 +262,7 @@ export const reportPost = async (postId, userId) => {
 };
 
 // --- Add a comment or reply (threaded) ---
-export const addCommentToPost = async ({ postId, userId, userName, text, parentCommentId = null, userProfilePic = "" }) => {
+const addCommentToPost = async ({ postId, userId, userName, text, parentCommentId = null, userProfilePic = "" }) => {
   const postRef = doc(firestore, "posts", postId);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) throw new Error("Post not found");
@@ -298,7 +298,7 @@ export const addCommentToPost = async ({ postId, userId, userName, text, parentC
 };
 
 // --- Upvote a comment (persist to Firestore) ---
-export const upvoteCommentOnPost = async (postId, commentId, userId) => {
+const upvoteCommentOnPost = async (postId, commentId, userId) => {
   const postRef = doc(firestore, "posts", postId);
   const postSnap = await getDoc(postRef);
   if (!postSnap.exists()) throw new Error("Post not found");
@@ -331,7 +331,7 @@ export const upvoteCommentOnPost = async (postId, commentId, userId) => {
 };
 
 // --- Fetch posts with optional filters ---
-export const fetchCommunityPosts = async ({ category = null, postType = null, spaceId = null, order = "desc" } = {}) => {
+const fetchCommunityPosts = async ({ category = null, postType = null, spaceId = null, order = "desc" } = {}) => {
   let q = collection(firestore, "posts");
   let constraints = [];
   if (category) constraints.push(where("categories", "array-contains", category));
@@ -344,7 +344,7 @@ export const fetchCommunityPosts = async ({ category = null, postType = null, sp
 };
 
 // --- Fetch user profile (badges, reputation, bio, bookmarks) ---
-export const fetchUserProfile = async (userId) => {
+const fetchUserProfile = async (userId) => {
   const userRef = doc(firestore, "users", userId);
   const userSnap = await getDoc(userRef);
   if (!userSnap.exists()) return null;
@@ -362,7 +362,7 @@ export const fetchUserProfile = async (userId) => {
 };
 
 // --- Fetch leaderboard ---
-export const fetchLeaderboard = async (limitCount = 10) => {
+const fetchLeaderboard = async (limitCount = 10) => {
   const q = query(collection(firestore, "users"), orderBy("reputation", "desc"), limit(limitCount));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -371,7 +371,7 @@ export const fetchLeaderboard = async (limitCount = 10) => {
 // --- Spaces Firestore Logic ---
 
 // Create a new space
-export const createSpace = async ({ name, description, coverImage = "", createdBy }) => {
+const createSpace = async ({ name, description, coverImage = "", createdBy }) => {
   const spaceId = uuidv4();
   const spaceData = {
     id: spaceId,
@@ -387,19 +387,75 @@ export const createSpace = async ({ name, description, coverImage = "", createdB
 };
 
 // Fetch all spaces
-export const fetchSpaces = async () => {
+const fetchSpaces = async () => {
   const snapshot = await getDocs(collection(firestore, "spaces"));
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
 // Join a space
-export const joinSpace = async (spaceId, userId) => {
+const joinSpace = async (spaceId, userId) => {
   const spaceRef = doc(firestore, "spaces", spaceId);
   await updateDoc(spaceRef, { members: arrayUnion(userId) });
 };
 
 // Leave a space
-export const leaveSpace = async (spaceId, userId) => {
+const leaveSpace = async (spaceId, userId) => {
   const spaceRef = doc(firestore, "spaces", spaceId);
   await updateDoc(spaceRef, { members: arrayRemove(userId) });
+};
+
+// Herbs CRUD
+const fetchHerbs = async () => {
+  const snapshot = await getDocs(collection(firestore, "herbs"));
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
+
+const createHerb = async (herbData) => {
+  const herbId = uuidv4();
+  const herb = {
+    id: herbId,
+    ...herbData,
+    createdAt: serverTimestamp(),
+  };
+  await setDoc(doc(firestore, "herbs", herbId), herb);
+  return herbId;
+};
+
+const updateHerb = async (id, herbData) => {
+  const herbRef = doc(firestore, "herbs", id);
+  await updateDoc(herbRef, herbData);
+};
+
+const deleteHerb = async (id) => {
+  const herbRef = doc(firestore, "herbs", id);
+  await deleteDoc(herbRef);
+};
+
+export {
+  // Herbs CRUD
+  fetchHerbs,
+  createHerb,
+  updateHerb,
+  deleteHerb,
+  // Community
+  createCommunityPost,
+  fetchCommunityPosts,
+  voteOnPost,
+  addCommentToPost,
+  upvoteCommentOnPost,
+  toggleBookmarkPost,
+  reportPost,
+  // User
+  fetchUserProfile,
+  updateUserActivity,
+  updateUserReputation,
+  fetchLeaderboard,
+  // Spaces
+  createSpace,
+  fetchSpaces,
+  joinSpace,
+  leaveSpace,
+  // Stats
+  incrementVisitCount,
+  getVisitCount,
 };

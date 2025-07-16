@@ -27,8 +27,8 @@ const PlantDetail = () => {
     const getPlants = async () => {
       try {
         const response = await fetchHerbs();
-        setAllPlants(response.data);
-        const foundPlant = response.data.find(p => p._id === id);
+        setAllPlants(Array.isArray(response) ? response : []);
+        const foundPlant = (Array.isArray(response) ? response : []).find(p => (p.id === id || p._id === id));
         if (foundPlant) {
           setPlant(foundPlant);
         } else {
@@ -54,38 +54,34 @@ const PlantDetail = () => {
 
   // Load comments from Firebase
   useEffect(() => {
-    const fetchComments = async () => {
-      setLoadingComments(true);
-      try {
-        const plantCommentsRef = collection(firestore, "comments");
-        const q = query(plantCommentsRef, where("plantId", "==", id));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-          const commentsData = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          // Sort comments by timestamp in frontend
-          commentsData.sort((a, b) => {
-            const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
-            const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
-            return timeA - timeB;
-          });
-          console.log("Fetched comments:", commentsData); // Debug log
-          setComments(commentsData);
-        }, (error) => {
-          console.error("Error in snapshot:", error);
+    if (!plant) return;
+    setLoadingComments(true);
+    try {
+      const plantCommentsRef = collection(firestore, "comments");
+      const q = query(plantCommentsRef, where("plantId", "==", plant.id || plant._id));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const commentsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        // Sort comments by timestamp in frontend
+        commentsData.sort((a, b) => {
+          const timeA = a.timestamp?.toDate ? a.timestamp.toDate() : new Date(a.timestamp || 0);
+          const timeB = b.timestamp?.toDate ? b.timestamp.toDate() : new Date(b.timestamp || 0);
+          return timeA - timeB;
         });
-        
-        return () => unsubscribe();
-      } catch (err) {
-        console.error("Error fetching comments:", err);
-        setError("Failed to load comments");
-      } finally {
-        setLoadingComments(false);
-      }
-    };
-    fetchComments();
-  }, [id]);
+        setComments(commentsData);
+      }, (error) => {
+        console.error("Error in snapshot:", error);
+      });
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      setError("Failed to load comments");
+    } finally {
+      setLoadingComments(false);
+    }
+  }, [plant]);
 
   // Load user from Firebase
   useEffect(() => {
@@ -120,9 +116,9 @@ const PlantDetail = () => {
   // Get related plants (same type, excluding current plant)
   // If no plants of same type, show random plants
   const relatedPlants = (() => {
-    const sameTypePlants = allPlants.filter(p => p.type === plant?.type && p._id !== plant?._id);
-    const otherPlants = allPlants.filter(p => p._id !== plant?._id);
-    
+    const safeAllPlants = Array.isArray(allPlants) ? allPlants : [];
+    const sameTypePlants = safeAllPlants.filter(p => p.type === plant?.type && p._id !== plant?._id);
+    const otherPlants = safeAllPlants.filter(p => p._id !== plant?._id);
     if (sameTypePlants.length > 0) {
       // Show 2 related plants and 2 random suggested plants
       const related = sameTypePlants.slice(0, 2);

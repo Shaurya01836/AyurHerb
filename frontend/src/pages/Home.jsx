@@ -27,7 +27,7 @@ const Home = () => {
   const filteredPlants = plants;
 
   // Show only a subset of plants on the Home page
-  const homePlants = filteredPlants.slice(0, 8);
+  const homePlants = (filteredPlants || []).slice(0, 8);
 
   useEffect(() => {
     const fetchVisitCountFunc = async () => {
@@ -54,8 +54,8 @@ const Home = () => {
   useEffect(() => {
     const getPlants = async () => {
       try {
-        const response = await fetchHerbs();
-        setPlants(response.data);
+        const herbs = await fetchHerbs();
+        setPlants(Array.isArray(herbs) ? herbs : []);
       } catch (err) {
         console.error("Error fetching plants:", err);
         setError("Failed to fetch plants");
