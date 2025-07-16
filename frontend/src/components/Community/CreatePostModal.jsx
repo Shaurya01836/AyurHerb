@@ -8,7 +8,7 @@ const CreatePostModal = ({ onClose, currentUser, spaceId: propSpaceId }) => {
   const [media, setMedia] = useState([]);
   const [loading, setLoading] = useState(false);
   const [spaces, setSpaces] = useState([]);
-  const [spaceId, setSpaceId] = useState(propSpaceId || "");
+  const [spaceId, setSpaceId] = useState(propSpaceId || "main"); // default to 'main' for Main Community
 
   useEffect(() => {
     if (!propSpaceId) {
@@ -28,10 +28,7 @@ const CreatePostModal = ({ onClose, currentUser, spaceId: propSpaceId }) => {
       alert("Please log in to create a post.");
       return;
     }
-    if (!spaceId) {
-      alert("Please select a space for your post.");
-      return;
-    }
+    // No longer require spaceId, allow 'main' for Main Community
     setLoading(true);
     await createCommunityPost({
       content,
@@ -41,7 +38,7 @@ const CreatePostModal = ({ onClose, currentUser, spaceId: propSpaceId }) => {
       userId: currentUser.uid,
       userName: currentUser.displayName || currentUser.email || "Anonymous",
       userProfilePic: currentUser.photoURL || "",
-      spaceId,
+      spaceId: spaceId === "main" ? null : spaceId, // null for Main Community
     });
     setLoading(false);
     onClose();
@@ -75,7 +72,7 @@ const CreatePostModal = ({ onClose, currentUser, spaceId: propSpaceId }) => {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Space selection */}
           <div>
-            <label className="block font-medium mb-1">Space</label>
+            <label className="block font-medium mb-1">Post To</label>
             {propSpaceId ? (
               <div className="px-3 py-2 border rounded bg-gray-50 text-gray-700 font-semibold">
                 {spaces.find(s => s.id === propSpaceId)?.name || "This Space"}
@@ -85,9 +82,8 @@ const CreatePostModal = ({ onClose, currentUser, spaceId: propSpaceId }) => {
                 className="w-full border rounded px-3 py-2"
                 value={spaceId}
                 onChange={e => setSpaceId(e.target.value)}
-                required
               >
-                <option value="">Select a space...</option>
+                <option value="main">Main Community</option>
                 {spaces.map((space) => (
                   <option key={space.id} value={space.id}>{space.name}</option>
                 ))}

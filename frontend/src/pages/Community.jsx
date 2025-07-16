@@ -29,11 +29,24 @@ const Community = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
-      const data = await fetchCommunityPosts({
-        category: category || null,
-        postType: postType || null,
-        spaceId: selectedSpace ? selectedSpace.id : null,
-      });
+      let data;
+      if (selectedSpace) {
+        // Fetch posts for the selected space only
+        data = await fetchCommunityPosts({
+          category: category || null,
+          postType: postType || null,
+          spaceId: selectedSpace.id,
+        });
+      } else {
+        // Fetch only posts with no spaceId (main community)
+        data = await fetchCommunityPosts({
+          category: category || null,
+          postType: postType || null,
+          spaceId: null,
+        });
+        // Filter out posts that have a spaceId (shouldn't be needed if backend is correct)
+        data = data.filter(post => !post.spaceId);
+      }
       setPosts(data);
       setLoading(false);
     };

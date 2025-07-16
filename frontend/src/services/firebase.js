@@ -149,6 +149,27 @@ export const createCommunityPost = async ({
   await setDoc(doc(firestore, "posts", postId), postData);
   // Award points for creating a post
   await updateUserReputation(userId, 10);
+
+  // --- Badge logic ---
+  const userRef = doc(firestore, "users", userId);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    const user = userSnap.data();
+    let badges = user.badges || [];
+    // Count total posts by user
+    const q = query(collection(firestore, "posts"), where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    const postCount = snapshot.size;
+    let newBadges = [];
+    if (postCount === 1 && !badges.includes("First Post")) newBadges.push("First Post");
+    if (postCount === 10 && !badges.includes("10 Posts")) newBadges.push("10 Posts");
+    if (newBadges.length > 0) {
+      badges = [...badges, ...newBadges];
+      await updateDoc(userRef, { badges });
+    }
+  }
+  // --- End badge logic ---
+
   return postId;
 };
 
@@ -336,6 +357,7 @@ export const fetchUserProfile = async (userId) => {
     reputation: user.reputation || 0,
     bio: user.bio || "",
     bookmarks: user.bookmarks || [],
+    badges: user.badges || [],
   };
 };
 

@@ -3,8 +3,10 @@ import { ThumbsUp, ThumbsDown, Bookmark, Flag, MessageCircle, MoreHorizontal } f
 import { voteOnPost, toggleBookmarkPost, reportPost, fetchUserProfile, addCommentToPost, upvoteCommentOnPost } from "../../services/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
 import { firestore } from "../../services/firebase";
+import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
-const UserProfilePopup = ({ userId, onClose }) => {
+const UserProfilePopup = ({ userId, anchorRef }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   React.useEffect(() => {
@@ -19,20 +21,38 @@ const UserProfilePopup = ({ userId, onClose }) => {
   if (loading) return <div className="p-4">Loading...</div>;
   if (!profile) return <div className="p-4">User not found</div>;
   return (
-    <div className="absolute z-50 bg-white rounded-xl shadow-xl p-4 border w-64 top-12 left-0">
-      <div className="flex items-center gap-3 mb-2">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white font-bold">
+    <div
+      className="absolute z-50 bg-white rounded-xl shadow-2xl p-5 border border-green-100 w-72 left-1/2 -translate-x-1/2 mt-3 animate-fade-in"
+      style={{ minWidth: 260 }}
+      onMouseEnter={anchorRef.onPopupHover}
+      onMouseLeave={anchorRef.onPopupLeave}
+    >
+      {/* Arrow */}
+      <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-green-100 rotate-45 shadow-sm"></div>
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-xl">
           {profile.displayName?.charAt(0) || "U"}
         </div>
         <div>
-          <div className="font-semibold text-gray-900">{profile.displayName}</div>
-          <div className="text-xs text-gray-500">{profile.badge} • {profile.reputation} pts</div>
+          <div className="font-semibold text-gray-900 text-lg">{profile.displayName}</div>
+          <div className="text-xs text-gray-500">{profile.reputation} pts</div>
         </div>
       </div>
-      <div className="text-gray-700 text-sm mb-2">{profile.bio || "No bio yet."}</div>
-      <button className="text-xs text-green-600 hover:underline" onClick={onClose}>Close</button>
+      {/* Badges */}
+      {profile.badges && profile.badges.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-2">
+          {profile.badges.map((badge) => (
+            <span key={badge} className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold border border-green-300">{badge}</span>
+          ))}
+        </div>
+      )}
+      <div className="text-gray-700 text-sm mb-2 whitespace-pre-line">{profile.bio || "No bio yet."}</div>
     </div>
   );
+};
+UserProfilePopup.propTypes = {
+  userId: PropTypes.string.isRequired,
+  anchorRef: PropTypes.object.isRequired,
 };
 
 // Helper to update upvotes in nested comments
@@ -54,7 +74,7 @@ function updateCommentUpvotes(comments, commentId, userId) {
   });
 }
 
-const CommentThread = ({ comments, postId, currentUser, parentId = null, level = 0, onUpvote }) => {
+const CommentThread = ({ comments, postId, currentUser, level = 0, onUpvote }) => {
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -122,13 +142,20 @@ const CommentThread = ({ comments, postId, currentUser, parentId = null, level =
             )}
             {/* Nested replies */}
             {comment.replies && comment.replies.length > 0 && (
-              <CommentThread comments={comment.replies} postId={postId} currentUser={currentUser} parentId={comment.id} level={level + 1} onUpvote={onUpvote} />
+              <CommentThread comments={comment.replies} postId={postId} currentUser={currentUser} level={level + 1} onUpvote={onUpvote} />
             )}
           </div>
         );
       })}
     </div>
   );
+};
+CommentThread.propTypes = {
+  comments: PropTypes.array.isRequired,
+  postId: PropTypes.string.isRequired,
+  currentUser: PropTypes.object,
+  level: PropTypes.number,
+  onUpvote: PropTypes.func.isRequired,
 };
 
 const ICON_SIZE = 22;
@@ -149,7 +176,6 @@ const PostCard = ({ post, currentUser }) => {
   const [bookmarked, setBookmarked] = useState(post.bookmarkedBy?.includes(currentUser?.uid));
   const [reported, setReported] = useState(post.reportedBy?.includes(currentUser?.uid));
   const [loading, setLoading] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentLoading, setCommentLoading] = useState(false);
@@ -251,8 +277,7 @@ const PostCard = ({ post, currentUser }) => {
     setLoading(false);
   };
 
-  const handleAddComment = async (e) => {
-    e.preventDefault();
+  const handleAddComment = async () => {
     if (!currentUser) return alert("Please log in to comment.");
     if (!commentText.trim()) return;
     setCommentLoading(true);
@@ -304,15 +329,20 @@ const PostCard = ({ post, currentUser }) => {
     return colors[hash % colors.length];
   }
 
+  const navigate = useNavigate();
+  const [showMenu, setShowMenu] = useState(false);
+  const handleMenuClick = () => setShowMenu((v) => !v);
+  const handleViewProfile = () => {
+    setShowMenu(false);
+    navigate(`/user/${post.userId}`);
+  };
+
   return (
     <div className="bg-white/95 rounded-2xl shadow-sm border border-green-100 mb-6 px-0 sm:px-2 py-4 ">
       {/* Header */}
-      <div className="flex items-center gap-3 px-6 pb-2">
+      <div className="flex items-center gap-3 px-6 pb-2 relative">
         <div
           className={`w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-lg shadow ${avatarColor(post.userName)}`}
-          onMouseEnter={() => setShowProfile(true)}
-          onMouseLeave={() => setTimeout(() => setShowProfile(false), 200)}
-          onClick={() => setShowProfile((v) => !v)}
           style={{ cursor: "pointer" }}
         >
           {post.userName?.charAt(0).toUpperCase()}
@@ -320,17 +350,34 @@ const PostCard = ({ post, currentUser }) => {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-gray-900 truncate max-w-[120px]">{post.userName}</span>
-            <span className="ml-1 px-2 py-0.5 bg-green-200 text-green-800 rounded-full text-xs">Badge</span>
+            {/* Show badges next to author name */}
+            {authorProfile && authorProfile.badges && authorProfile.badges.length > 0 && (
+              <div className="flex flex-wrap gap-1">
+                {authorProfile.badges.map((badge) => (
+                  <span key={badge} className="px-2 py-0.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200">{badge}</span>
+                ))}
+              </div>
+            )}
             <span className="ml-1 text-xs text-green-500 font-semibold">• {authorProfile ? `${authorProfile.reputation || 0} pts` : "..."}</span>
             <span className="ml-2 text-xs text-gray-400">{post.createdAt ? timeAgo(post.createdAt.toDate ? post.createdAt.toDate() : post.createdAt) : "now"}</span>
           </div>
         </div>
-        <button className="p-2 rounded-full hover:bg-gray-100 transition" title="More actions">
-          <MoreHorizontal size={20} />
-        </button>
-        {showProfile && (
-          <UserProfilePopup userId={post.userId} onClose={() => setShowProfile(false)} />
-        )}
+        <div className="relative">
+          <button className="p-2 rounded-full hover:bg-gray-100 transition" title="More actions" onClick={handleMenuClick}>
+            <MoreHorizontal size={20} />
+          </button>
+          {showMenu && (
+            <div className="absolute right-0 mt-2 w-44 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-fade-in">
+              <button
+                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 transition-colors"
+                onClick={handleViewProfile}
+              >
+                View Profile
+              </button>
+              {/* Add more options here if needed */}
+            </div>
+          )}
+        </div>
       </div>
       {/* Post Type and Categories */}
       <div className="flex items-center gap-2 px-6 pb-1">
@@ -433,6 +480,10 @@ const PostCard = ({ post, currentUser }) => {
       )}
     </div>
   );
+};
+PostCard.propTypes = {
+  post: PropTypes.object.isRequired,
+  currentUser: PropTypes.object,
 };
 
 export default PostCard; 
