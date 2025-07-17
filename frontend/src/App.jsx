@@ -14,6 +14,7 @@ import DiseaseRecommendation from "./components/DiseaseRecommendation";
 import AllPlants from "./pages/AllPlants";
 import PlantDetail from "./pages/PlantDetail";
 import UserProfile from "./pages/UserProfile";
+import AddHerb from "./pages/AddHerb";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           <Route path="/myherbs" element={<MyHerbs />} />
           <Route path="/disease" element={<DiseaseRecommendation />} />
           <Route path="/user/:userId" element={<UserProfile />} />
+          <Route path="/add-herb" element={<AddHerb />} />
           {/* Authentication routes */}
           <Route path="/login" element={<Login />} /> {/* Login Page */}
           <Route path="/register" element={<Register />} />{" "}

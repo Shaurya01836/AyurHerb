@@ -4,6 +4,7 @@ export {
   createHerb,
   updateHerb,
   deleteHerb,
+  toggleBookmarkHerb,
   // Community
   createCommunityPost,
   fetchCommunityPosts,

@@ -16,12 +16,12 @@ const PlantCardsSection = ({
       {visiblePlants.map((plant) => (
         <PlantCard
           key={plant.id || plant._id}
-          imageSrc={plant.imageSrc || "default-image-url"}
+          imageSrc={plant.imageSrc || plant.image || "default-image-url"}
           name={plant.name || "Unknown Plant"}
           type={plant.type || "Unknown Type"}
           onLearnMore={() => onLearnMore(plant)}
           onBookmark={() => onBookmark(plant)}
-          isBookmarked={bookmarkedPlants.some((p) => (p.id || p._id) === (plant.id || plant._id))}
+          isBookmarked={bookmarkedPlants.includes(plant.id || plant._id)}
           plantId={plant.id || plant._id}
           sketchfabModelUrl={plant.sketchfabModelUrl}
         />

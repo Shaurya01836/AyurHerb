@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchHerbs } from "../services/api";
+import { fetchHerbs, fetchUserProfile, toggleBookmarkHerb } from "../services/api";
 import { auth, firestore } from "../services/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from "firebase/firestore";
@@ -15,13 +15,14 @@ const PlantDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const [bookmarkedPlants, setBookmarkedPlants] = useState([]);
+  const [bookmarkedHerbIds, setBookmarkedHerbIds] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [showImagePopup, setShowImagePopup] = useState(false);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [user, setUser] = useState(null);
   const [loadingComments, setLoadingComments] = useState(true);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
   useEffect(() => {
     const getPlants = async () => {
@@ -44,12 +45,18 @@ const PlantDetail = () => {
     getPlants();
   }, [id]);
 
-  // Load bookmarked plants from localStorage
+  // Load user from Firebase and fetch bookmarks from DB
   useEffect(() => {
-    const savedBookmarks = localStorage.getItem("bookmarkedPlants");
-    if (savedBookmarks) {
-      setBookmarkedPlants(JSON.parse(savedBookmarks));
-    }
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setUser(user);
+      if (user) {
+        const profile = await fetchUserProfile(user.uid);
+        setBookmarkedHerbIds(profile?.bookmarkedHerbs || []);
+      } else {
+        setBookmarkedHerbIds([]);
+      }
+    });
+    return () => unsubscribe();
   }, []);
 
   // Load comments from Firebase
@@ -83,25 +90,26 @@ const PlantDetail = () => {
     }
   }, [plant]);
 
-  // Load user from Firebase
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  const handleBookmark = (plantToBookmark) => {
-    setBookmarkedPlants((prev) => {
-      let updatedBookmarks;
-      if (prev.some((p) => p._id === plantToBookmark._id)) {
-        updatedBookmarks = prev.filter((p) => p._id !== plantToBookmark._id);
-      } else {
-        updatedBookmarks = [...prev, plantToBookmark];
-      }
-      localStorage.setItem("bookmarkedPlants", JSON.stringify(updatedBookmarks));
-      return updatedBookmarks;
-    });
+  const handleBookmark = async (plantToBookmark) => {
+    console.log('handleBookmark called for:', plantToBookmark);
+    if (!user) {
+      alert("Please log in to bookmark herbs.");
+      return;
+    }
+    setBookmarkLoading(true);
+    try {
+      const herbId = plantToBookmark.id || plantToBookmark._id;
+      console.log("Toggling bookmark for herbId:", herbId, "userId:", user.uid);
+      await toggleBookmarkHerb(herbId, user.uid);
+      const profile = await fetchUserProfile(user.uid);
+      setBookmarkedHerbIds(profile?.bookmarkedHerbs || []);
+      console.log("BookmarkedHerbIds after update:", profile?.bookmarkedHerbs || []);
+    } catch (err) {
+      alert("Failed to update bookmark. Please try again. " + err.message);
+      console.error("Bookmark error:", err);
+    } finally {
+      setBookmarkLoading(false);
+    }
   };
 
   const handleShare = () => {
@@ -111,14 +119,14 @@ const PlantDetail = () => {
     }
   };
 
-  const isBookmarked = bookmarkedPlants.some((p) => p._id === plant?._id);
+  const isBookmarked = plant && bookmarkedHerbIds.includes(plant.id || plant._id);
 
   // Get related plants (same type, excluding current plant)
   // If no plants of same type, show random plants
-  const relatedPlants = (() => {
+  const relatedPlants = useMemo(() => {
     const safeAllPlants = Array.isArray(allPlants) ? allPlants : [];
-    const sameTypePlants = safeAllPlants.filter(p => p.type === plant?.type && p._id !== plant?._id);
-    const otherPlants = safeAllPlants.filter(p => p._id !== plant?._id);
+    const sameTypePlants = safeAllPlants.filter(p => p.type === plant?.type && (p.id || p._id) !== (plant?.id || plant?._id));
+    const otherPlants = safeAllPlants.filter(p => (p.id || p._id) !== (plant?.id || plant?._id));
     if (sameTypePlants.length > 0) {
       // Show 2 related plants and 2 random suggested plants
       const related = sameTypePlants.slice(0, 2);
@@ -131,7 +139,7 @@ const PlantDetail = () => {
       // Show random plants if no same type plants
       return otherPlants.sort(() => Math.random() - 0.5).slice(0, 4);
     }
-  })();
+  }, [plant, allPlants]);
 
   if (loading) {
     return (
@@ -340,12 +348,15 @@ const PlantDetail = () => {
                 )}
                 <div className="absolute top-4 right-4 flex space-x-2">
                   <button
-                    onClick={() => handleBookmark(plant)}
-                    className={`p-2 rounded-full bg-white/80 backdrop-blur-sm ${
-                      isBookmarked ? "text-yellow-500" : "text-gray-600"
-                    } hover:bg-white transition-colors`}
+                    onClick={() => { console.log('Bookmark button clicked (main)'); handleBookmark(plant); }}
+                    className={`p-2 rounded-full bg-white/80 backdrop-blur-sm ${isBookmarked ? "text-yellow-500" : "text-gray-600"} hover:bg-white transition-colors`}
+                    disabled={bookmarkLoading}
                   >
-                    <i className={`fas ${isBookmarked ? "fa-check" : "fa-bookmark"}`}></i>
+                    {bookmarkLoading ? (
+                      <span className="fas fa-spinner fa-spin"></span>
+                    ) : (
+                      <i className={`fas ${isBookmarked ? "fa-check" : "fa-bookmark"}`}></i>
+                    )}
                   </button>
                   <button
                     onClick={handleShare}
@@ -456,17 +467,18 @@ const PlantDetail = () => {
                 <div className="space-y-4">
                   {relatedPlants.map((relatedPlant) => (
                     <div
-                      key={relatedPlant._id}
-                      onClick={() => navigate(`/plant/${relatedPlant._id}`)}
+                      key={relatedPlant.id || relatedPlant._id}
+                      onClick={() => navigate(`/plant/${relatedPlant.id || relatedPlant._id}`)}
                       className="cursor-pointer group"
                     >
                       <PlantCard
-                        imageSrc={relatedPlant.imageSrc}
+                        imageSrc={relatedPlant.imageSrc || relatedPlant.image || "placeholder-image-url.jpg"}
                         name={relatedPlant.name}
                         type={relatedPlant.type}
                         onLearnMore={() => {}}
-                        onBookmark={() => handleBookmark(relatedPlant)}
-                        isBookmarked={bookmarkedPlants.some((p) => p._id === relatedPlant._id)}
+                        onBookmark={() => { console.log('Bookmark button clicked (related)', relatedPlant); handleBookmark(relatedPlant); }}
+                        isBookmarked={bookmarkedHerbIds.includes(relatedPlant.id || relatedPlant._id)}
+                        plantId={relatedPlant.id || relatedPlant._id}
                       />
                     </div>
                   ))}
@@ -479,12 +491,13 @@ const PlantDetail = () => {
               <h3 className="text-lg font-semibold mb-4 text-gray-800">Quick Actions</h3>
               <div className="space-y-3">
                 <button
-                  onClick={() => handleBookmark(plant)}
+                  onClick={() => { console.log('Bookmark button clicked (sidebar)'); handleBookmark(plant); }}
                   className={`w-full py-2 px-4 rounded-lg border transition-colors ${
                     isBookmarked
                       ? "bg-yellow-50 border-yellow-200 text-yellow-700"
                       : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
                   }`}
+                  disabled={bookmarkLoading}
                 >
                   <i className={`fas ${isBookmarked ? "fa-check" : "fa-bookmark"} mr-2`}></i>
                   {isBookmarked ? "Bookmarked" : "Add to Bookmarks"}

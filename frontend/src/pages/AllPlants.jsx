@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { fetchHerbs } from "../services/api";
+import { fetchHerbs, toggleBookmarkHerb } from "../services/api";
 import Navbar from "../components/Navbar";
 import PlantCardsSection from "../components/PlantCardsSection";
 import PlantPopup from "../components/PlantPopup";
+import { Link } from "react-router-dom";
+import { auth } from "../services/firebase";
+import { fetchUserProfile } from "../services/api";
+import { onAuthStateChanged } from "firebase/auth";
 
 const AllPlants = () => {
   const [plants, setPlants] = useState([]);
@@ -12,8 +16,9 @@ const AllPlants = () => {
   const [filterType, setFilterType] = useState("All");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState(null);
-  const [bookmarkedPlants, setBookmarkedPlants] = useState([]);
+  const [bookmarkedHerbIds, setBookmarkedHerbIds] = useState([]);
   const [notes, setNotes] = useState("");
+  const [toggleSection, setToggleSection] = useState("authentic"); // 'authentic' or 'public'
 
   useEffect(() => {
     const getPlants = async () => {
@@ -30,6 +35,34 @@ const AllPlants = () => {
     getPlants();
   }, []);
 
+  // Sync bookmarks with auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const profile = await fetchUserProfile(user.uid);
+        setBookmarkedHerbIds(profile?.bookmarkedHerbs || []);
+      } else {
+        setBookmarkedHerbIds([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Refetch bookmarks when page regains focus
+  useEffect(() => {
+    const handleVisibility = async () => {
+      if (document.visibilityState === "visible") {
+        const user = auth.currentUser;
+        if (user) {
+          const profile = await fetchUserProfile(user.uid);
+          setBookmarkedHerbIds(profile?.bookmarkedHerbs || []);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, []);
+
   // Get unique types for filter dropdown
   const plantTypes = [
     "All",
@@ -42,6 +75,10 @@ const AllPlants = () => {
     const matchesType = filterType === "All" || plant.type === filterType;
     return matchesSearch && matchesType;
   });
+
+  // Filter herbs by postedBy/isAdmin
+  const authenticHerbs = filteredPlants.filter((plant) => plant.isAdmin || plant.postedBy === "admin");
+  const publicHerbs = filteredPlants.filter((plant) => !plant.isAdmin && plant.postedBy !== "admin");
 
   const openPopup = (plant) => {
     const multimedia = [
@@ -59,20 +96,16 @@ const AllPlants = () => {
     setSelectedPlant(null);
   };
 
-  const handleBookmark = (plant) => {
-    setBookmarkedPlants((prev) => {
-      let updatedBookmarks;
-      if (prev.some((p) => p._id === plant._id)) {
-        updatedBookmarks = prev.filter((p) => p._id !== plant._id);
-      } else {
-        updatedBookmarks = [...prev, plant];
-      }
-      localStorage.setItem(
-        "bookmarkedPlants",
-        JSON.stringify(updatedBookmarks)
-      );
-      return updatedBookmarks;
-    });
+  const handleBookmark = async (plant) => {
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Please log in to bookmark herbs.");
+      return;
+    }
+    await toggleBookmarkHerb(plant.id, user.uid);
+    // Refetch bookmarks after toggling
+    const profile = await fetchUserProfile(user.uid);
+    setBookmarkedHerbIds(profile?.bookmarkedHerbs || []);
   };
 
   const handleDownloadNotes = () => {
@@ -121,18 +154,41 @@ const AllPlants = () => {
               <option key={type} value={type}>{type}</option>
             ))}
           </select>
+          <Link
+            to="/add-herb"
+            className="w-full md:w-auto px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-center"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            Add New Herb
+          </Link>
         </div>
+        {/* Toggle Section */}
+        <div className="flex justify-center mb-6">
+          <button
+            className={`px-4 py-2 rounded-l-lg border ${toggleSection === "authentic" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"}`}
+            onClick={() => setToggleSection("authentic")}
+          >
+            Authentic Herbs
+          </button>
+          <button
+            className={`px-4 py-2 rounded-r-lg border ${toggleSection === "public" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"}`}
+            onClick={() => setToggleSection("public")}
+          >
+            Public Herbs
+          </button>
+        </div>
+        {/* Herbs Section */}
         <div>
           <PlantCardsSection
-            plants={filteredPlants}
+            plants={toggleSection === "authentic" ? authenticHerbs : publicHerbs}
             onLearnMore={openPopup}
             onBookmark={handleBookmark}
-            bookmarkedPlants={bookmarkedPlants}
+            bookmarkedPlants={bookmarkedHerbIds}
             currentPage={1}
             itemsPerPage={8}
           />
         </div>
-        {filteredPlants.length === 0 && (
+        {(toggleSection === "authentic" ? authenticHerbs : publicHerbs).length === 0 && (
           <div className="text-center text-gray-500 py-8">No plants found.</div>
         )}
       </div>

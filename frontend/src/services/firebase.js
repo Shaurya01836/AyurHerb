@@ -358,6 +358,7 @@ const fetchUserProfile = async (userId) => {
     bio: user.bio || "",
     bookmarks: user.bookmarks || [],
     badges: user.badges || [],
+    bookmarkedHerbs: user.bookmarkedHerbs || [], // Always include this field
   };
 };
 
@@ -431,12 +432,35 @@ const deleteHerb = async (id) => {
   await deleteDoc(herbRef);
 };
 
+// --- Bookmark/Unbookmark a herb ---
+const toggleBookmarkHerb = async (herbId, userId) => {
+  const herbRef = doc(firestore, "herbs", herbId);
+  const userRef = doc(firestore, "users", userId);
+  const herbSnap = await getDoc(herbRef);
+  const userSnap = await getDoc(userRef);
+  if (!herbSnap.exists() || !userSnap.exists()) throw new Error("Not found");
+  const herb = herbSnap.data();
+  const user = userSnap.data();
+  let herbUpdate = {};
+  let userUpdate = {};
+  if (herb.bookmarkedBy?.includes(userId)) {
+    herbUpdate = { bookmarkedBy: herb.bookmarkedBy.filter((id) => id !== userId) };
+    userUpdate = { bookmarkedHerbs: (user.bookmarkedHerbs || []).filter((id) => id !== herbId) };
+  } else {
+    herbUpdate = { bookmarkedBy: [...(herb.bookmarkedBy || []), userId] };
+    userUpdate = { bookmarkedHerbs: [...(user.bookmarkedHerbs || []), herbId] };
+  }
+  await updateDoc(herbRef, herbUpdate);
+  await updateDoc(userRef, userUpdate);
+};
+
 export {
   // Herbs CRUD
   fetchHerbs,
   createHerb,
   updateHerb,
   deleteHerb,
+  toggleBookmarkHerb,
   // Community
   createCommunityPost,
   fetchCommunityPosts,
