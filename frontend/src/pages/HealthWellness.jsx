@@ -1,94 +1,143 @@
+import { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
-import DiseaseRecommendation from "../components/DiseaseRecommendation";
-import { Leaf, Heart, Shield, Sparkles } from "lucide-react";
+import { Loader2, Leaf, Search, AlertTriangle, CheckCircle, Send } from "lucide-react";
+import {
+  collection,
+  query as firestoreQuery,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { firestore } from "../services/firebase";
+
+const InterestingFacts = () => (
+  <div className="text-center p-8">
+    <div className="inline-flex items-center gap-3 bg-green-100 text-green-700 px-6 py-3 rounded-full mb-6">
+      <Leaf className="w-5 h-5" />
+      <span className="font-semibold">Did You Know?</span>
+    </div>
+    <h2 className="text-3xl font-bold text-gray-800 mb-4">Interesting Herb Facts</h2>
+    <div className="text-lg text-gray-600 max-w-2xl mx-auto space-y-4">
+      <p>🌿 Turmeric, known for its bright yellow color, contains curcumin, a compound with powerful anti-inflammatory and antioxidant properties.</p>
+      <p>🌿 The name rosemary has nothing to do with roses. It comes from the Latin "ros marinus," which means "dew of the sea."</p>
+      <p>🌿 Lavender is not just for relaxation! It can also be used as a natural antiseptic and has been used for centuries to clean wounds.</p>
+    </div>
+  </div>
+);
 
 const HealthWellness = () => {
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState([]);
+  const [conversation, setConversation] = useState([]);
+  const chatContainerRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    const userMessage = { type: "user", text: query };
+    setConversation((prev) => [...prev, userMessage]);
+    setLoading(true);
+    setRecommendations([]);
+    setQuery("");
+
+    try {
+      const q = firestoreQuery(
+        collection(firestore, "herbalRecommendations"),
+        where("disease", "==", query.toLowerCase())
+      );
+      const querySnapshot = await getDocs(q);
+
+      let botMessage;
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+        if (data.recommendations && Array.isArray(data.recommendations)) {
+          botMessage = { type: "bot", recommendations: data.recommendations };
+          setRecommendations(data.recommendations);
+        } else {
+          botMessage = { type: "bot", text: "Sorry, no valid recommendations found for this condition." };
+        }
+      } else {
+        botMessage = {
+          type: "bot",
+          text: "Sorry, we don't have specific recommendations for this condition at the moment. Please check the spelling or try another condition.",
+        };
+      }
+      setConversation((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error("Error fetching recommendations:", error);
+      const errorMessage = { type: "bot", text: "Something went wrong. Please try again." };
+      setConversation((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
-
-      {/* Hero Section */}
-      <div className="pt-24 pb-16 px-4 min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-3 bg-green-100 text-green-700 px-6 py-3 rounded-full mb-6">
-              <Heart className="w-5 h-5" />
-              <span className="font-semibold">Natural Healing</span>
-            </div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold mb-6 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              Herbal Health & Wellness
-            </h1>
-
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
-              Discover natural remedies and herbal treatments for common
-              ailments. Our AI-powered system provides personalized
-              recommendations based on traditional Ayurvedic wisdom and modern
-              herbal medicine.
-            </p>
-
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span>Safe & Natural</span>
+      <div className="flex flex-col h-screen pt-16 bg-gradient-to-br from-green-50 via-white to-emerald-50">
+        <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 md:p-8">
+          <div className="max-w-4xl mx-auto">
+            {conversation.length === 0 && !loading && <InterestingFacts />}
+            {conversation.map((message, index) => (
+              <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+                <div className={`p-4 rounded-2xl max-w-lg ${message.type === 'user' ? 'bg-green-600 text-white' : 'bg-white shadow-md'}`}>
+                  {message.text}
+                  {message.recommendations && (
+                    <div className="space-y-4">
+                      {message.recommendations.map((item, i) => (
+                        <div key={i} className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-bold text-gray-800">{item.herb}</h4>
+                          <p><span className="font-semibold">Used for:</span> {item.usedFor}</p>
+                          <p><span className="font-semibold">Preparation:</span> {item.preparation}</p>
+                          <p><span className="font-semibold">Dosage:</span> {item.dosage}</p>
+                          {item.caution && <p className="text-red-600"><span className="font-semibold">Caution:</span> {item.caution}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Leaf className="w-4 h-4 text-green-500" />
-                <span>Traditional Wisdom</span>
+            ))}
+            {loading && (
+              <div className="flex justify-start mb-4">
+                <div className="p-4 rounded-2xl max-w-lg bg-white shadow-md">
+                  <Loader2 className="w-6 h-6 animate-spin text-green-500" />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-green-500" />
-                <span>AI-Powered</span>
-              </div>
-            </div>
+            )}
           </div>
-
-          {/* Main Content */}
-          <div className="bg-white/80 backdrop-blur-md rounded-3xl border border-green-100 p-8 lg:p-12 mb-8">
-            <DiseaseRecommendation />
-          </div>
-
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
-                <Leaf className="w-6 h-6 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Herbal Remedies
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Access a comprehensive database of herbal treatments for various
-                health conditions.
-              </p>
-            </div>
-
-            <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
-                <Heart className="w-6 h-6 text-emerald-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Symptom Analysis
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Describe your symptoms and get personalized herbal
-                recommendations.
-              </p>
-            </div>
-
-            <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition-all duration-300">
-              <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-teal-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
-                Safety Guidelines
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                Get detailed dosage instructions and safety precautions for each
-                remedy.
-              </p>
-            </div>
+        </div>
+        <div className="p-4 bg-white border-t border-gray-200">
+          <div className="max-w-4xl mx-auto">
+            <form onSubmit={handleSubmit} className="flex items-center gap-4">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask about a condition or symptom..."
+                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-green-400"
+              />
+              <button
+                type="submit"
+                className="bg-green-600 text-white p-3 rounded-full hover:bg-green-700 transition-colors"
+                disabled={loading}
+              >
+                <Send size={20} />
+              </button>
+            </form>
           </div>
         </div>
       </div>

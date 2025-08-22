@@ -181,7 +181,7 @@ const PlantDetail = () => {
       case "overview":
         return (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg p-6 shadow-sm border">
+            <div className="">
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Basic Information</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
@@ -207,7 +207,7 @@ const PlantDetail = () => {
               </div>
             </div>
             
-            <div className="bg-white rounded-lg p-6 shadow-sm border">
+            <div className="border-t pt-4">
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Description</h3>
               <p className="text-gray-700 leading-relaxed">{plant.description || "No description available."}</p>
             </div>
@@ -216,7 +216,7 @@ const PlantDetail = () => {
 
       case "medicinal":
         return (
-          <div className="bg-white rounded-lg p-6 shadow-sm border">
+          <div className="">
             <h3 className="text-xl font-semibold mb-4 text-gray-800">Medicinal Uses</h3>
             <p className="text-gray-700 leading-relaxed">{plant.medicinalUses || "Medicinal uses information not available."}</p>
           </div>
@@ -224,7 +224,7 @@ const PlantDetail = () => {
 
       case "cultivation":
         return (
-          <div className="bg-white rounded-lg p-6 shadow-sm border">
+          <div className="">
             <h3 className="text-xl font-semibold mb-4 text-gray-800">Methods of Cultivation</h3>
             <p className="text-gray-700 leading-relaxed">{plant.methodsOfCultivation || "Cultivation information not available."}</p>
           </div>
@@ -233,7 +233,7 @@ const PlantDetail = () => {
       case "multimedia":
         return (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg p-6 shadow-sm border">
+            <div className="">
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Images</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[plant.multimedia1, plant.multimedia2, plant.multimedia3, plant.multimedia4]
@@ -268,7 +268,7 @@ const PlantDetail = () => {
 
       case "research":
         return (
-          <div className="bg-white rounded-lg p-6 shadow-sm border">
+          <div className="">
             <h3 className="text-xl font-semibold mb-4 text-gray-800">Research & Studies</h3>
             <p className="text-gray-700 leading-relaxed">
               Research information and scientific studies about this plant will be displayed here.
@@ -462,7 +462,7 @@ const PlantDetail = () => {
           <div className="space-y-6">
             {/* Related Plants */}
             {relatedPlants.length > 0 && (
-              <div className="bg-white rounded-lg shadow-sm border p-6">
+              <div className="">
                 <h3 className="text-lg font-semibold mb-4 text-gray-800">Related Plants</h3>
                 <div className="space-y-4">
                   {relatedPlants.map((relatedPlant) => (
@@ -486,38 +486,6 @@ const PlantDetail = () => {
               </div>
             )}
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">Quick Actions</h3>
-              <div className="space-y-3">
-                <button
-                  onClick={() => { console.log('Bookmark button clicked (sidebar)'); handleBookmark(plant); }}
-                  className={`w-full py-2 px-4 rounded-lg border transition-colors ${
-                    isBookmarked
-                      ? "bg-yellow-50 border-yellow-200 text-yellow-700"
-                      : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
-                  }`}
-                  disabled={bookmarkLoading}
-                >
-                  <i className={`fas ${isBookmarked ? "fa-check" : "fa-bookmark"} mr-2`}></i>
-                  {isBookmarked ? "Bookmarked" : "Add to Bookmarks"}
-                </button>
-                <button
-                  onClick={handleShare}
-                  className="w-full py-2 px-4 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <i className="fas fa-share-alt mr-2"></i>
-                  Share Plant
-                </button>
-                <button
-                  onClick={() => navigate("/all-plants")}
-                  className="w-full py-2 px-4 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  <i className="fas fa-arrow-left mr-2"></i>
-                  Back to All Plants
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </div>

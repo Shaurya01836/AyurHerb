@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { auth } from "../services/firebase";
 import { fetchUserProfile } from "../services/api";
 import { onAuthStateChanged } from "firebase/auth";
+import { Filter } from "lucide-react";
 
 const AllPlants = () => {
   const [plants, setPlants] = useState([]);
@@ -18,7 +19,8 @@ const AllPlants = () => {
   const [selectedPlant, setSelectedPlant] = useState(null);
   const [bookmarkedHerbIds, setBookmarkedHerbIds] = useState([]);
   const [notes, setNotes] = useState("");
-  const [toggleSection, setToggleSection] = useState("authentic"); // 'authentic' or 'public'
+  const [toggleSection, setToggleSection] = useState("authentic");
+  const [showFilter, setShowFilter] = useState(false);
 
   useEffect(() => {
     const getPlants = async () => {
@@ -135,35 +137,52 @@ const AllPlants = () => {
   return (
     <div className="font-poppins scrollbar-thin min-h-screen bg-white pt-20">
       <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
-        <h1 className="text-3xl font-bold mb-8 text-center text-green-700">All Plants</h1>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <input
-            type="text"
-            placeholder="Search by plant name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-          />
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="w-full md:w-1/4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-          >
-            {plantTypes.map((type) => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </select>
+      <div className="max-w-7xl mx-auto py-10">
+        <div className="flex items-center justify-center gap-4 mb-8 relative">
+          <div className="flex flex-grow px-10">
+            <input
+              type="text"
+              placeholder="Search plants..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-5 py-2 border border-r-0 border-gray-300 rounded-l-full focus:outline-none focus:ring-2 focus:ring-green-400 z-10"
+            />
+            <button
+              className="px-5 py-2 border border-gray-300 bg-gray-50 rounded-r-full hover:bg-gray-100"
+              onClick={() => setShowFilter(!showFilter)}
+            >
+              <Filter className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+          {showFilter && (
+            <div className="absolute top-14 right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+              <select
+                value={filterType}
+                onChange={(e) => {
+                  setFilterType(e.target.value);
+                  setShowFilter(false);
+                }}
+                className="w-full px-4 py-2 border-none rounded-lg focus:outline-none"
+                size={plantTypes.length > 5 ? 6 : plantTypes.length}
+              >
+                {plantTypes.map((type) => (
+                  <option key={type} value={type} className="py-1">
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <Link
             to="/add-herb"
-            className="w-full md:w-auto px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-center"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition text-center flex items-center justify-center gap-2"
           >
-            Add New Herb
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+            <span>Add Herb</span>
           </Link>
         </div>
         {/* Toggle Section */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-start mb-6 pl-10">
           <button
             className={`px-4 py-2 rounded-l-lg border ${toggleSection === "authentic" ? "bg-green-600 text-white" : "bg-gray-200 text-gray-700"}`}
             onClick={() => setToggleSection("authentic")}
@@ -205,4 +224,4 @@ const AllPlants = () => {
   );
 };
 
-export default AllPlants; 
+export default AllPlants;

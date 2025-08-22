@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { Bookmark, Share2 } from "lucide-react";
 
 const PlantCard = ({
   imageSrc,
@@ -23,42 +24,42 @@ const PlantCard = ({
 
   return (
     <div
-      className="bg-sec-color shadow-md rounded-md overflow-hidden border border-gray-200 cursor-pointer pb-1 transition transform hover:scale-105 duration-500 ease-in-out w-full max-w-[300px] mx-auto"
+      className="bg-white rounded-xl shadow-md overflow-hidden group transform hover:-translate-y-2 transition-all duration-300 ease-in-out cursor-pointer"
       onClick={handleCardClick}
     >
-      <img
-        src={imageSrc || "placeholder-image-url.jpg"}
-        alt={name || "Plant"}
-        className="w-full h-40 sm:h-44 md:h-48 object-cover p-2 rounded-xl"
-      />
-      <div className="p-4 pt-2 bg-sec-color text-center">
-        <h3 className="text-lg font-semibold text-gray-800 text-left">
-          {name}
-        </h3>
-        <p className="text-sm text-gray-500 text-left">{type}</p>
-      </div>
-      <div className="relative -z-0">
-        <div className="absolute bottom-2 right-2 flex space-x-2 text-base">
+      <div className="relative">
+        <img
+          src={imageSrc || "placeholder-image-url.jpg"}
+          alt={name || "Plant"}
+          className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute bottom-4 left-4">
+          <h3 className="text-lg font-bold text-white">{name}</h3>
+          <p className="text-sm text-gray-200">{type}</p>
+        </div>
+        <div className="absolute top-4 right-4 flex flex-col gap-2">
           <button
             aria-label={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
-            className={`p-1 hover:bg-gray-100 rounded-md transition-colors duration-200 ${
-              isBookmarked ? "text-yellow-500" : "text-gray-600 hover:text-yellow-500"
+            className={`p-2 rounded-full backdrop-blur-sm bg-white/20 text-white hover:bg-white/30 transition-colors duration-200 ${
+              isBookmarked ? "text-yellow-400" : ""
             }`}
             onClick={(e) => {
               e.stopPropagation();
               onBookmark();
             }}
           >
-            <i className={isBookmarked ? "fas fa-check" : "fas fa-bookmark"}></i>
+            <Bookmark size={18} className={isBookmarked ? "fill-current" : ""} />
           </button>
           <button
             aria-label="Share"
-            className="text-gray-600 hover:text-green-500 p-1 hover:bg-gray-100 rounded-md transition-colors duration-200"
+            className="p-2 rounded-full backdrop-blur-sm bg-white/20 text-white hover:bg-white/30 transition-colors duration-200"
             onClick={(e) => {
               e.stopPropagation();
+              // Add share functionality here
             }}
           >
-            <i className="fas fa-share-alt"></i>
+            <Share2 size={18} />
           </button>
         </div>
       </div>
@@ -70,9 +71,9 @@ PlantCard.propTypes = {
   imageSrc: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   type: PropTypes.string.isRequired,
-  onLearnMore: PropTypes.func.isRequired,
-  onBookmark: PropTypes.func.isRequired,
-  isBookmarked: PropTypes.bool.isRequired,
+  onLearnMore: PropTypes.func,
+  onBookmark: PropTypes.func,
+  isBookmarked: PropTypes.bool,
   plantId: PropTypes.string,
 };
 

@@ -141,7 +141,7 @@ const Home = () => {
 
       <ChatbotButton showChatbot={showChatbot} toggleChatbot={toggleChatbot} />
 
-      <div ref={plantCardsRef} className="min-h-screen px-4 sm:px-6 py-6">
+      <div ref={plantCardsRef} className="px-4 sm:px-20 py-6">
         <PlantCardsSection
           plants={homePlants}
           onLearnMore={openPopup}

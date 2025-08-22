@@ -97,7 +97,7 @@ function DiseaseRecommendation() {
           Find Your Natural Remedy
         </h2>
         <p className="text-gray-600 max-w-2xl mx-auto">
-          Describe your symptoms or search for a specific condition to discover 
+          Describe your symptoms or search for a specific condition to discover
           traditional herbal treatments and natural remedies.
         </p>
       </div>
@@ -145,6 +145,7 @@ function DiseaseRecommendation() {
               (condition) => (
                 <button
                   key={condition}
+                  type="button"
                   onClick={() => handleSuggestionClick(condition)}
                   className="bg-gradient-to-r from-green-100 to-emerald-100 hover:from-green-200 hover:to-emerald-200 text-green-700 py-3 px-6 rounded-full transition-all duration-300 font-medium shadow-sm hover:shadow-md"
                 >
